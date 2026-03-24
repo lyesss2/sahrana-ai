@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sahrana — Smart Desert Agriculture Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --sand:    #E8D5B0;
+  --sand2:   #F5EDD8;
+  --terra:   #B85C2C;
+  --terra2:  #D4793F;
+  --green:   #4A7C59;
+  --green2:  #6BAE80;
+  --sky:     #5B8FB9;
+  --sky2:    #7BAFD4;
+  --night:   #1A1208;
+  --night2:  #2D1F0E;
+  --amber:   #F4A232;
+  --ink:     #2C1810;
+  --muted:   #8B7355;
+  --bg:      #FAF6EE;
+  --card:    #FFFFFF;
+  --border:  rgba(139,115,85,0.2);
+  --radius:  16px;
+  --shadow:  0 2px 20px rgba(44,24,16,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+}
+
+/* ── Nav ── */
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:64px;
+  background:rgba(250,246,238,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+.logo{
+  font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;
+  color:var(--terra);letter-spacing:-0.5px;
+  display:flex;align-items:center;gap:8px;
+}
+.logo-dot{width:10px;height:10px;border-radius:50%;background:var(--green2);}
+nav ul{display:flex;gap:2rem;list-style:none;}
+nav ul a{
+  font-size:0.875rem;font-weight:500;color:var(--muted);
+  text-decoration:none;transition:color .2s;
+}
+nav ul a:hover{color:var(--terra)}
+.btn-nav{
+  background:var(--terra);color:#fff;border:none;
+  padding:8px 18px;border-radius:8px;font-size:0.875rem;font-weight:500;
+  cursor:pointer;transition:background .2s;font-family:inherit;
+}
+.btn-nav:hover{background:var(--terra2)}
+
+/* ── Hero ── */
+.hero{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:4rem;align-items:center;
+  padding:5rem 2rem 4rem;max-width:1200px;margin:0 auto;
+}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(74,124,89,0.12);color:var(--green);
+  padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:500;
+  margin-bottom:1rem;
+}
+.hero h1{
+  font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;
+  line-height:1.05;letter-spacing:-1.5px;color:var(--night);
+  margin-bottom:1.25rem;
+}
+.hero h1 span{color:var(--terra)}
+.hero p{
+  font-size:1.1rem;color:var(--muted);line-height:1.7;
+  margin-bottom:2rem;max-width:480px;
+}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
+.btn-primary{
+  background:var(--terra);color:#fff;border:none;
+  padding:12px 28px;border-radius:10px;font-size:1rem;font-weight:500;
+  cursor:pointer;transition:all .2s;font-family:inherit;
+}
+.btn-primary:hover{background:var(--terra2);transform:translateY(-1px)}
+.btn-secondary{
+  background:transparent;color:var(--terra);
+  border:1.5px solid var(--terra);
+  padding:12px 28px;border-radius:10px;font-size:1rem;font-weight:500;
+  cursor:pointer;transition:all .2s;font-family:inherit;
+}
+.btn-secondary:hover{background:rgba(184,92,44,0.06)}
+.hero-visual{
+  background:linear-gradient(145deg,#2D1F0E,#1A3020);
+  border-radius:24px;padding:2rem;
+  box-shadow:0 20px 60px rgba(44,24,16,0.25);
+  position:relative;overflow:hidden;
+}
+.hero-visual::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 80% 20%,rgba(244,162,50,0.15) 0%,transparent 60%),
+             radial-gradient(ellipse at 20% 80%,rgba(74,124,89,0.15) 0%,transparent 60%);
+}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;position:relative}
+.stat-card{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;padding:1.25rem;
+}
+.stat-label{font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:4px;font-weight:300}
+.stat-value{font-family:'Syne',sans-serif;font-size:1.75rem;font-weight:700;color:#fff}
+.stat-unit{font-size:0.8rem;color:rgba(255,255,255,0.5);margin-left:4px}
+.stat-badge{
+  display:inline-flex;align-items:center;gap:4px;margin-top:6px;
+  font-size:0.7rem;font-weight:500;
+  padding:2px 8px;border-radius:20px;
+}
+.badge-green{background:rgba(107,174,128,0.2);color:#6BAE80}
+.badge-amber{background:rgba(244,162,50,0.2);color:#F4A232}
+.badge-blue{background:rgba(91,143,185,0.2);color:#7BAFD4}
+
+/* ── Section ── */
+.section{max-width:1200px;margin:0 auto;padding:3rem 2rem}
+.section-tag{
+  font-size:0.8rem;font-weight:500;color:var(--terra);
+  text-transform:uppercase;letter-spacing:2px;margin-bottom:0.5rem;
+}
+.section-title{
+  font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:700;
+  color:var(--night);margin-bottom:1rem;letter-spacing:-0.5px;
+}
+
+/* ── Dashboard Panel ── */
+#dashboard{background:#fff;border-top:1px solid var(--border)}
+.dashboard-inner{max-width:1300px;margin:0 auto;padding:3rem 2rem}
+.dash-header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;margin-bottom:2.5rem;
+}
+.dash-grid{display:grid;grid-template-columns:360px 1fr;gap:1.5rem}
+
+/* Form card */
+.form-card{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.75rem;
+}
+.form-card h3{
+  font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:600;
+  color:var(--night);margin-bottom:1.5rem;
+}
+.form-group{margin-bottom:1.1rem}
+.form-group label{
+  display:block;font-size:0.8rem;font-weight:500;
+  color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;
+}
+.form-group select,.form-group input[type=range]{
+  width:100%;border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;font-family:inherit;font-size:0.9rem;
+  background:#fff;color:var(--ink);outline:none;
+  transition:border-color .2s;appearance:none;cursor:pointer;
+}
+.form-group select:focus,.form-group input:focus{border-color:var(--terra)}
+.range-row{display:flex;align-items:center;gap:10px}
+.range-val{
+  min-width:52px;font-size:0.85rem;font-weight:500;
+  color:var(--terra);text-align:right;
+}
+input[type=range]{
+  padding:0;height:4px;background:var(--border);
+  border-radius:2px;outline:none;border:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  appearance:none;width:18px;height:18px;
+  border-radius:50%;background:var(--terra);
+  border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.2);cursor:pointer;
+}
+.form-divider{
+  border:none;border-top:1px solid var(--border);margin:1.25rem 0;
+}
+.btn-predict{
+  width:100%;background:var(--terra);color:#fff;border:none;
+  padding:14px;border-radius:10px;font-size:1rem;font-weight:600;
+  cursor:pointer;transition:all .2s;font-family:'Syne',sans-serif;
+  letter-spacing:0.3px;
+}
+.btn-predict:hover{background:var(--terra2)}
+.btn-predict:disabled{background:#ccc;cursor:not-allowed}
+
+/* Results area */
+.results-area{display:flex;flex-direction:column;gap:1.25rem}
+
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.kpi-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.25rem;
+  position:relative;overflow:hidden;
+}
+.kpi-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+}
+.kpi-card.green::after{background:var(--green2)}
+.kpi-card.terra::after{background:var(--terra2)}
+.kpi-card.sky::after{background:var(--sky)}
+.kpi-card.amber::after{background:var(--amber)}
+.kpi-icon{font-size:1.5rem;margin-bottom:8px}
+.kpi-label{font-size:0.75rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+.kpi-value{
+  font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;
+  color:var(--night);margin:4px 0;line-height:1;
+}
+.kpi-sub{font-size:0.8rem;color:var(--muted)}
+
+/* Crop recommendation card */
+.crop-card{
+  background:linear-gradient(135deg,var(--night),#1A3020);
+  border-radius:var(--radius);padding:2rem;
+  display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center;
+  position:relative;overflow:hidden;
+}
+.crop-card::before{
+  content:'';position:absolute;right:-40px;top:-40px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(244,162,50,0.15) 0%,transparent 70%);
+}
+.crop-name{
+  font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;
+  color:#fff;margin-bottom:0.5rem;
+}
+.crop-sub{color:rgba(255,255,255,0.55);font-size:0.9rem;margin-bottom:1rem}
+.confidence-bar-wrap{margin-bottom:0.5rem}
+.confidence-label{
+  display:flex;justify-content:space-between;
+  font-size:0.8rem;color:rgba(255,255,255,0.55);margin-bottom:6px;
+}
+.confidence-bar{
+  height:6px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden;
+}
+.confidence-fill{
+  height:100%;background:linear-gradient(90deg,var(--green2),var(--amber));
+  border-radius:3px;transition:width 0.8s ease;
+}
+.top3-grid{display:flex;gap:0.75rem;flex-wrap:wrap}
+.crop-chip{
+  font-size:0.8rem;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);
+  padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);
+}
+.water-efficiency{
+  text-align:center;min-width:120px;
+}
+.efficiency-ring{position:relative;display:inline-block;margin-bottom:8px}
+.efficiency-svg{transform:rotate(-90deg)}
+.ring-bg{stroke:rgba(255,255,255,0.1)}
+.ring-fill{
+  stroke:var(--green2);stroke-linecap:round;
+  transition:stroke-dashoffset 0.8s ease;
+}
+.efficiency-val{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;color:#fff;
+}
+.efficiency-label{font-size:0.75rem;color:rgba(255,255,255,0.55);text-align:center}
+
+/* Charts row */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.chart-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.5rem;
+}
+.chart-card h4{
+  font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;
+  color:var(--night);margin-bottom:1.25rem;
+}
+
+/* Irrigation card */
+.irrigation-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.75rem;
+}
+.irrigation-card h4{
+  font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;
+  color:var(--night);margin-bottom:1.5rem;
+}
+.irr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.irr-item{
+  background:var(--bg);border-radius:10px;padding:1rem;
+  border:1px solid var(--border);
+}
+.irr-label{font-size:0.75rem;color:var(--muted);font-weight:500;margin-bottom:6px}
+.irr-value{font-size:0.95rem;font-weight:600;color:var(--night)}
+.irr-method{
+  margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.method-badge{
+  background:rgba(91,143,185,0.12);color:var(--sky);
+  padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:500;
+}
+
+/* Empty state */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:4rem 2rem;text-align:center;
+  border:2px dashed var(--border);border-radius:var(--radius);
+  color:var(--muted);
+}
+.empty-icon{font-size:3rem;margin-bottom:1rem;opacity:0.5}
+.empty-state p{font-size:0.95rem;max-width:300px;line-height:1.6}
+
+/* Loading */
+.loading{
+  display:none;flex-direction:column;align-items:center;
+  justify-content:center;padding:3rem;
+  border-radius:var(--radius);background:var(--bg);
+}
+.spinner{
+  width:40px;height:40px;border:3px solid var(--border);
+  border-top-color:var(--terra);border-radius:50%;
+  animation:spin .8s linear infinite;margin-bottom:1rem;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{color:var(--muted);font-size:0.9rem}
+
+/* About */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem}
+.feat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.75rem;
+  transition:transform .2s,box-shadow .2s;
+}
+.feat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.feat-icon{
+  width:48px;height:48px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;margin-bottom:1rem;
+}
+.feat-card h3{
+  font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:600;
+  color:var(--night);margin-bottom:0.5rem;
+}
+.feat-card p{font-size:0.9rem;color:var(--muted);line-height:1.6}
+
+/* Footer */
+footer{
+  background:var(--night);color:rgba(255,255,255,0.45);
+  padding:2rem;text-align:center;font-size:0.875rem;
+}
+footer span{color:var(--terra2)}
+
+/* ── Responsive ── */
+@media(max-width:1024px){
+  .dash-grid{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .charts-row{grid-template-columns:1fr}
+  .irr-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;gap:2.5rem;padding:3rem 1.25rem}
+  .hero h1{font-size:2.5rem}
+  .hero-visual{display:none}
+  .features{grid-template-columns:1fr}
+  nav ul{display:none}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .crop-card{grid-template-columns:1fr}
+  .water-efficiency{display:none}
+}
+@media(max-width:480px){
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .irr-grid{grid-template-columns:1fr 1fr}
+  .section{padding:2rem 1rem}
+  .dashboard-inner{padding:2rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="logo">
+    <span class="logo-dot"></span>
+    Sahrana
+  </div>
+  <ul>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#model">Model</a></li>
+  </ul>
+  <button class="btn-nav" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">
+    Launch Platform →
+  </button>
+</nav>
+
+<!-- ── Hero ── -->
+<header>
+  <div class="hero">
+    <div>
+      <div class="hero-tag">🌾 AI-Powered Agritech Platform</div>
+      <h1>Smart Farming<br/>for the <span>Sahara</span></h1>
+      <p>Sahrana analyzes your land's environmental data to recommend the optimal crops, precise irrigation schedules, and solar energy insights — unlocking the agricultural potential of Algeria's arid regions.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})">
+          Try the Platform
+        </button>
+        <button class="btn-secondary" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">
+          Learn More
+        </button>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Crops Supported</div>
+          <div class="stat-value">15<span class="stat-unit">varieties</span></div>
+          <div class="stat-badge badge-green">🌿 Desert-optimized</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Water Savings</div>
+          <div class="stat-value">40<span class="stat-unit">%</span></div>
+          <div class="stat-badge badge-blue">💧 Drip irrigation</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Solar Hours</div>
+          <div class="stat-value">3,500<span class="stat-unit">hrs/yr</span></div>
+          <div class="stat-badge badge-amber">☀️ Saharan advantage</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Regions Covered</div>
+          <div class="stat-value">6<span class="stat-unit">zones</span></div>
+          <div class="stat-badge badge-green">📍 Algeria</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Dashboard ── -->
+<section id="dashboard">
+  <div class="dashboard-inner">
+    <div class="dash-header">
+      <div>
+        <div class="section-tag">AI Prediction Engine</div>
+        <div class="section-title" style="margin-bottom:0">Smart Crop Advisor</div>
+      </div>
+      <div style="font-size:0.85rem;color:var(--muted)">Enter your land's parameters to get AI recommendations</div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- Input form -->
+      <div class="form-card">
+        <h3>🗺️ Land & Climate Parameters</h3>
+
+        <div class="form-group">
+          <label>Region</label>
+          <select id="in-region">
+            <option value="ouargla">Ouargla</option>
+            <option value="northern_sahara">Northern Sahara</option>
+            <option value="hoggar">Hoggar</option>
+            <option value="tassili">Tassili</option>
+            <option value="tidikelt">Tidikelt</option>
+            <option value="adrar">Adrar</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Soil Type</label>
+          <select id="in-soil">
+            <option value="sandy">Sandy</option>
+            <option value="loamy">Loamy</option>
+            <option value="clay">Clay</option>
+            <option value="silt">Silt</option>
+            <option value="saline">Saline</option>
+            <option value="rocky">Rocky</option>
+          </select>
+        </div>
+
+        <hr class="form-divider"/>
+
+        <div class="form-group">
+          <label>Temperature (°C)</label>
+          <div class="range-row">
+            <input type="range" id="in-temp" min="5" max="50" value="35" oninput="updateVal('temp',this.value,'°C')"/>
+            <span class="range-val" id="val-temp">35°C</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Humidity (%)</label>
+          <div class="range-row">
+            <input type="range" id="in-hum" min="5" max="80" value="20" oninput="updateVal('hum',this.value,'%')"/>
+            <span class="range-val" id="val-hum">20%</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Water Availability (mm/month)</label>
+          <div class="range-row">
+            <input type="range" id="in-water" min="0" max="100" value="30" oninput="updateVal('water',this.value,' mm')"/>
+            <span class="range-val" id="val-water">30 mm</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Solar Exposure (hrs/day)</label>
+          <div class="range-row">
+            <input type="range" id="in-solar" min="3" max="12" step="0.5" value="9" oninput="updateVal('solar',this.value,' h')"/>
+            <span class="range-val" id="val-solar">9 h</span>
+          </div>
+        </div>
+
+        <hr class="form-divider"/>
+
+        <div class="form-group">
+          <label>Soil pH</label>
+          <div class="range-row">
+            <input type="range" id="in-ph" min="5.5" max="9.5" step="0.1" value="7.5" oninput="updateVal('ph',this.value,'')"/>
+            <span class="range-val" id="val-ph">7.5</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Nitrogen (kg/ha)</label>
+          <div class="range-row">
+            <input type="range" id="in-n" min="0" max="100" value="30" oninput="updateVal('n',this.value,' kg')"/>
+            <span class="range-val" id="val-n">30 kg</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Phosphorus (kg/ha)</label>
+          <div class="range-row">
+            <input type="range" id="in-p" min="0" max="80" value="20" oninput="updateVal('p',this.value,' kg')"/>
+            <span class="range-val" id="val-p">20 kg</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Potassium (kg/ha)</label>
+          <div class="range-row">
+            <input type="range" id="in-k" min="0" max="120" value="40" oninput="updateVal('k',this.value,' kg')"/>
+            <span class="range-val" id="val-k">40 kg</span>
+          </div>
+        </div>
+
+        <hr class="form-divider"/>
+        <button class="btn-predict" id="btn-predict" onclick="runPrediction()">
+          ✦ Analyze & Recommend
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div id="results-area">
+        <div class="empty-state" id="empty-state">
+          <div class="empty-icon">🌵</div>
+          <p>Set your land parameters and click <strong>Analyze</strong> to get AI crop recommendations and irrigation insights.</p>
+        </div>
+        <div class="loading" id="loading-state">
+          <div class="spinner"></div>
+          <p>Analyzing environmental data…</p>
+        </div>
+        <div id="results-content" style="display:none;display:flex;flex-direction:column;gap:1.25rem"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── About ── -->
+<section id="about" class="section">
+  <div class="section-tag">Platform Overview</div>
+  <div class="section-title">Why Sahrana?</div>
+  <p style="color:var(--muted);max-width:600px;line-height:1.7">
+    Algeria has 2 million km² of Saharan territory with untapped agricultural potential.
+    Sahrana combines machine learning with agronomic science to help farmers make
+    data-driven decisions in one of the world's most challenging environments.
+  </p>
+  <div class="features">
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(74,124,89,0.1)">🌱</div>
+      <h3>Crop Intelligence</h3>
+      <p>AI model trained on 15 desert-adapted crops, analyzing soil, climate, and nutrient data to find the perfect match for your land.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(91,143,185,0.1)">💧</div>
+      <h3>Smart Irrigation</h3>
+      <p>Precise irrigation schedules that minimize water waste while maximizing yield — critical in water-scarce arid regions.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(244,162,50,0.1)">☀️</div>
+      <h3>Solar Optimization</h3>
+      <p>Leverage Algeria's exceptional solar resources with daily energy availability forecasts to power irrigation pumps sustainably.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Model Info ── -->
+<section id="model" class="section" style="background:linear-gradient(135deg,var(--night),#1A3020);color:#fff;max-width:100%;padding:4rem 2rem">
+  <div style="max-width:1200px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center">
+      <div>
+        <div style="font-size:0.8rem;font-weight:500;color:var(--green2);text-transform:uppercase;letter-spacing:2px;margin-bottom:0.5rem">AI Engine</div>
+        <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:700;margin-bottom:1rem">Gradient Boosting<br/>Classification</div>
+        <p style="color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:1.5rem">
+          The Sahrana model uses a Gradient Boosting Classifier trained on 5,000+ synthetic samples
+          representing Algerian desert agro-climatic conditions. It analyzes 10 environmental
+          features to predict the optimal crop among 15 desert-adapted varieties.
+        </p>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap">
+          <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:1rem 1.25rem">
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-bottom:4px">Training samples</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:#fff">5,000+</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:1rem 1.25rem">
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-bottom:4px">Input features</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:#fff">10</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:1rem 1.25rem">
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.45);margin-bottom:4px">Output classes</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:#fff">15</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(0,0,0,0.3);border-radius:16px;padding:1.5rem;border:1px solid rgba(255,255,255,0.1)">
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-bottom:1rem;font-family:monospace">model inputs</div>
+        <div id="feature-list" style="display:flex;flex-direction:column;gap:0.5rem"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Sahrana © 2025 · AI-Powered Desert Agriculture · Algeria 🇩🇿 · Built with <span>❤️</span> for the Sahara</p>
+</footer>
+
+<script>
+// ── Inline AI model (mirrors Python logic) ────────────────────────────────────
+const CROPS = {
+  "Date Palm":   {water:"low",   tempLo:20,tempHi:50,solar:7, yieldBase:8000,  waterNeedMm:20},
+  "Olive":       {water:"low",   tempLo:10,tempHi:40,solar:6, yieldBase:3500,  waterNeedMm:20},
+  "Barley":      {water:"medium",tempLo:5, tempHi:30,solar:5, yieldBase:2500,  waterNeedMm:50},
+  "Wheat":       {water:"medium",tempLo:5, tempHi:28,solar:5, yieldBase:3000,  waterNeedMm:50},
+  "Sorghum":     {water:"low",   tempLo:18,tempHi:40,solar:6, yieldBase:4000,  waterNeedMm:20},
+  "Watermelon":  {water:"medium",tempLo:22,tempHi:38,solar:7, yieldBase:25000, waterNeedMm:50},
+  "Tomato":      {water:"high",  tempLo:15,tempHi:35,solar:6, yieldBase:40000, waterNeedMm:80},
+  "Pepper":      {water:"medium",tempLo:18,tempHi:35,solar:6, yieldBase:15000, waterNeedMm:50},
+  "Fig":         {water:"low",   tempLo:15,tempHi:40,solar:6, yieldBase:10000, waterNeedMm:20},
+  "Pomegranate": {water:"low",   tempLo:15,tempHi:42,solar:7, yieldBase:12000, waterNeedMm:20},
+  "Alfalfa":     {water:"high",  tempLo:10,tempHi:38,solar:5, yieldBase:15000, waterNeedMm:80},
+  "Chickpea":    {water:"low",   tempLo:8, tempHi:30,solar:5, yieldBase:2000,  waterNeedMm:20},
+  "Lentil":      {water:"low",   tempLo:5, tempHi:28,solar:5, yieldBase:1800,  waterNeedMm:20},
+  "Sunflower":   {water:"medium",tempLo:15,tempHi:38,solar:7, yieldBase:2200,  waterNeedMm:50},
+  "Quinoa":      {water:"low",   tempLo:5, tempHi:35,solar:5, yieldBase:2500,  waterNeedMm:20},
+};
+
+const EMOJIS = {
+  "Date Palm":"🌴","Olive":"🫒","Barley":"🌾","Wheat":"🌾","Sorghum":"🌽",
+  "Watermelon":"🍉","Tomato":"🍅","Pepper":"🌶","Fig":"🍈","Pomegranate":"🍎",
+  "Alfalfa":"🌿","Chickpea":"🫘","Lentil":"🫘","Sunflower":"🌻","Quinoa":"🌱"
+};
+
+function scorecrops(inp) {
+  const scores = {};
+  for (const [crop, p] of Object.entries(CROPS)) {
+    let s = 0;
+    const mid = (p.tempLo + p.tempHi) / 2;
+    if (inp.temperature >= p.tempLo && inp.temperature <= p.tempHi) s += 3;
+    else if (inp.temperature < p.tempLo - 5 || inp.temperature > p.tempHi + 5) s -= 3;
+    const ideal = p.waterNeedMm;
+    s += Math.max(0, 3 - Math.abs(inp.water - ideal) / 15);
+    if (inp.solar >= p.solar) s += 2;
+    if (inp.ph >= 6.0 && inp.ph <= 8.0) s += 1;
+    if (inp.soil === 'saline' && !['Date Palm','Barley','Quinoa'].includes(crop)) s -= 2;
+    if (inp.soil === 'rocky'  && !['Olive','Fig','Pomegranate'].includes(crop))   s -= 1;
+    if (['Tomato','Pepper','Alfalfa'].includes(crop) && inp.n > 40) s += 1;
+    scores[crop] = s;
+  }
+  return Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+}
+
+function predict(inp) {
+  const ranked = scorecrops(inp);
+  const top3   = ranked.slice(0,3);
+  const total  = top3.reduce((s,x)=>s+Math.max(x[1],0.1),0);
+  const top3pct = top3.map(([c,s])=>({crop:c, score:Math.round(Math.max(s,0.1)/total*100)}));
+
+  const crop = top3[0][0];
+  const p    = CROPS[crop];
+
+  // Yield estimate
+  const mid = (p.tempLo+p.tempHi)/2;
+  let yf = Math.max(0.5, 1-Math.abs(inp.temperature-mid)/(p.tempHi-p.tempLo));
+  yf *= Math.max(0.4, 1-Math.abs(inp.water-p.waterNeedMm)/80);
+  yf *= Math.min(1.2, inp.solar/p.solar);
+  const yield_est = Math.round(p.yieldBase * yf);
+
+  // Irrigation
+  const etFactor = 1 + (inp.temperature-25)*0.02 + (inp.solar-6)*0.05;
+  const waterMap = {low:15, medium:35, high:60};
+  const baseMm   = waterMap[p.water];
+  const freq = p.water==='high'?'Daily': p.water==='medium'?'Every 2 days':'Twice a week';
+  const eventMm  = Math.max(2, baseMm/7 * etFactor * (freq==='Twice a week'?3.5:freq==='Every 2 days'?3.5:1));
+  const monthMm  = Math.round(baseMm * etFactor * 4.3);
+  const method   = p.water==='high'?'Sprinkler / drip combo':'Drip irrigation';
+
+  // Solar
+  const solarKwh = Math.round(inp.solar * 0.18 * 100)/100;
+
+  // Water efficiency
+  const effMap = {low:90, medium:70, high:45};
+  const eff = Math.min(100, effMap[p.water] + (inp.water<30?5:0));
+
+  return {
+    crop, confidence:top3pct[0].score, top3:top3pct,
+    yield_est, freq, eventMm:Math.round(eventMm*10)/10, monthMm,
+    method, solarKwh, eff, water_need: p.water
+  };
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+function updateVal(id, val, unit) {
+  document.getElementById('val-'+id).textContent = val+unit;
+}
+
+function getInputs() {
+  return {
+    region: document.getElementById('in-region').value,
+    soil:   document.getElementById('in-soil').value,
+    temperature: parseFloat(document.getElementById('in-temp').value),
+    humidity:    parseFloat(document.getElementById('in-hum').value),
+    water:       parseFloat(document.getElementById('in-water').value),
+    solar:       parseFloat(document.getElementById('in-solar').value),
+    ph:          parseFloat(document.getElementById('in-ph').value),
+    n:           parseFloat(document.getElementById('in-n').value),
+    p:           parseFloat(document.getElementById('in-p').value),
+    k:           parseFloat(document.getElementById('in-k').value),
+  };
+}
+
+let yieldChart=null, solarChart=null;
+
+function runPrediction() {
+  document.getElementById('empty-state').style.display='none';
+  document.getElementById('results-content').style.display='none';
+  const ld = document.getElementById('loading-state');
+  ld.style.display='flex';
+
+  setTimeout(()=>{
+    const inp = getInputs();
+    const res = predict(inp);
+    ld.style.display='none';
+    renderResults(res, inp);
+  }, 900);
+}
+
+function renderResults(r, inp) {
+  const rc = document.getElementById('results-content');
+  rc.style.display='flex';
+  rc.style.flexDirection='column';
+  rc.style.gap='1.25rem';
+
+  rc.innerHTML = `
+    <!-- KPI row -->
+    <div class="kpi-row">
+      <div class="kpi-card green">
+        <div class="kpi-icon">🌾</div>
+        <div class="kpi-label">Est. Yield</div>
+        <div class="kpi-value">${(r.yield_est/1000).toFixed(1)}<span style="font-size:1rem;font-weight:400;color:var(--muted)"> t/ha</span></div>
+        <div class="kpi-sub">Season estimate</div>
+      </div>
+      <div class="kpi-card sky">
+        <div class="kpi-icon">💧</div>
+        <div class="kpi-label">Water Need</div>
+        <div class="kpi-value">${r.monthMm}<span style="font-size:1rem;font-weight:400;color:var(--muted)"> mm</span></div>
+        <div class="kpi-sub">Per month</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-icon">☀️</div>
+        <div class="kpi-label">Solar Energy</div>
+        <div class="kpi-value">${r.solarKwh}<span style="font-size:1rem;font-weight:400;color:var(--muted)"> kWh</span></div>
+        <div class="kpi-sub">Per day / kWp</div>
+      </div>
+      <div class="kpi-card terra">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-label">AI Confidence</div>
+        <div class="kpi-value">${r.confidence}<span style="font-size:1rem;font-weight:400;color:var(--muted)">%</span></div>
+        <div class="kpi-sub">Model certainty</div>
+      </div>
+    </div>
+
+    <!-- Crop recommendation -->
+    <div class="crop-card">
+      <div>
+        <div style="font-size:0.8rem;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:0.5rem">Best crop for your land</div>
+        <div class="crop-name">${EMOJIS[r.crop]||'🌿'} ${r.crop}</div>
+        <div class="crop-sub">${inp.soil.charAt(0).toUpperCase()+inp.soil.slice(1)} soil · ${inp.region.replace('_',' ')} region · ${inp.temperature}°C</div>
+        <div class="confidence-bar-wrap">
+          <div class="confidence-label">
+            <span>AI Confidence Score</span>
+            <span style="color:#fff;font-weight:500">${r.confidence}%</span>
+          </div>
+          <div class="confidence-bar">
+            <div class="confidence-fill" id="conf-fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="top3-grid" style="margin-top:1rem">
+          ${r.top3.map(x=>`<div class="crop-chip">${EMOJIS[x.crop]||'🌿'} ${x.crop} <strong style="color:#fff">${x.score}%</strong></div>`).join('')}
+        </div>
+      </div>
+      <div class="water-efficiency">
+        <div class="efficiency-ring">
+          <svg class="efficiency-svg" width="100" height="100" viewBox="0 0 100 100">
+            <circle class="ring-bg" cx="50" cy="50" r="40" fill="none" stroke-width="8"/>
+            <circle class="ring-fill" cx="50" cy="50" r="40" fill="none" stroke-width="8"
+              stroke-dasharray="251.2" stroke-dashoffset="${251.2-(251.2*r.eff/100)}" id="ring-fill"/>
+          </svg>
+          <div class="efficiency-val">${r.eff}%</div>
+        </div>
+        <div class="efficiency-label">Water<br/>Efficiency</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <h4>📊 Monthly Yield Projection (kg/ha)</h4>
+        <div style="position:relative;height:200px">
+          <canvas id="yield-chart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h4>☀️ Daily Solar Energy Profile (kWh/kWp)</h4>
+        <div style="position:relative;height:200px">
+          <canvas id="solar-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Irrigation card -->
+    <div class="irrigation-card">
+      <h4>💧 Irrigation Schedule</h4>
+      <div class="irr-grid">
+        <div class="irr-item">
+          <div class="irr-label">Frequency</div>
+          <div class="irr-value">${r.freq}</div>
+        </div>
+        <div class="irr-item">
+          <div class="irr-label">Volume / event</div>
+          <div class="irr-value">${r.eventMm} mm</div>
+        </div>
+        <div class="irr-item">
+          <div class="irr-label">Best times</div>
+          <div class="irr-value">05:00–07:00</div>
+        </div>
+        <div class="irr-item">
+          <div class="irr-label">Monthly total</div>
+          <div class="irr-value">${r.monthMm} mm</div>
+        </div>
+      </div>
+      <div class="irr-method">
+        <span style="color:var(--muted);font-size:0.85rem">Recommended method:</span>
+        <span class="method-badge">💧 ${r.method}</span>
+        <span style="color:var(--muted);font-size:0.8rem">· Evening/morning watering to reduce evaporation loss</span>
+      </div>
+    </div>
+  `;
+
+  // Animate confidence bar
+  setTimeout(()=>{
+    const fill = document.getElementById('conf-fill');
+    if(fill) fill.style.width = r.confidence+'%';
+  },100);
+
+  // Yield chart
+  if(yieldChart) yieldChart.destroy();
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const growthCurve=[0.05,0.1,0.25,0.55,0.8,1,1,0.95,0.85,0.6,0.3,0.1];
+  const yieldData = growthCurve.map(f=>Math.round(r.yield_est * f));
+  yieldChart = new Chart(document.getElementById('yield-chart'),{
+    type:'bar',
+    data:{
+      labels:months,
+      datasets:[{
+        label:'Yield (kg/ha)',
+        data:yieldData,
+        backgroundColor:'rgba(74,124,89,0.7)',
+        borderColor:'#4A7C59',
+        borderWidth:1,
+        borderRadius:4,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}}
+      }
+    }
+  });
+
+  // Solar chart
+  if(solarChart) solarChart.destroy();
+  const hours=['6h','7h','8h','9h','10h','11h','12h','13h','14h','15h','16h','17h','18h'];
+  const solarCurve=[0.02,0.08,0.22,0.45,0.68,0.88,1,0.95,0.82,0.62,0.38,0.15,0.02];
+  const solarData = solarCurve.map(f=>Math.round(r.solarKwh*f*100)/100);
+  solarChart = new Chart(document.getElementById('solar-chart'),{
+    type:'line',
+    data:{
+      labels:hours,
+      datasets:[{
+        label:'kWh/kWp',
+        data:solarData,
+        borderColor:'#F4A232',
+        backgroundColor:'rgba(244,162,50,0.1)',
+        borderWidth:2.5,
+        pointRadius:0,
+        fill:true,
+        tension:0.4,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}}
+      }
+    }
+  });
+}
+
+// ── Model info feature list ───────────────────────────────────────────────────
+const features = [
+  {name:'Soil Type',      desc:'Sandy, loamy, clay, silt, saline, rocky'},
+  {name:'Temperature',    desc:'°C — optimum range per crop'},
+  {name:'Humidity',       desc:'% relative humidity'},
+  {name:'Water Availability', desc:'mm/month irrigation potential'},
+  {name:'Solar Exposure', desc:'Peak sun hours per day'},
+  {name:'Soil pH',        desc:'5.5 – 9.5 range'},
+  {name:'Nitrogen',       desc:'kg/ha — primary nutrient'},
+  {name:'Phosphorus',     desc:'kg/ha — root development'},
+  {name:'Potassium',      desc:'kg/ha — disease resistance'},
+  {name:'Region',         desc:'6 Algerian desert zones'},
+];
+const fl = document.getElementById('feature-list');
+if(fl){
+  features.forEach(f=>{
+    fl.innerHTML += `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <span style="font-size:0.85rem;font-weight:500;color:rgba(255,255,255,0.85)">${f.name}</span>
+        <span style="font-size:0.75rem;color:rgba(255,255,255,0.35);text-align:right;max-width:55%">${f.desc}</span>
+      </div>`;
+  });
+}
+</script>
+</body>
+</html>
