@@ -1,7 +1,7 @@
 """
 sahrana_model.py
 ----------------
-Trains a Decision Tree to predict:
+Trains a Random Forrest + a Decision Tree to predict:
   1. Which crop to plant  = the main output.
   2. When to irrigate.
   3. How efficient the resource usage is.
