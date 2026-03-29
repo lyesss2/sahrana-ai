@@ -35,7 +35,6 @@
 body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .5s,color .5s;}
 [dir="rtl"] body{font-family:'Tajawal',sans-serif;}
 
-/* HEADER */
 .header{position:fixed;top:0;left:0;right:0;z-index:1000;height:64px;background:var(--header-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;box-shadow:var(--shadow);transition:background .5s;}
 .header-logo{height:44px;width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.2));}
 .header-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--accent2);letter-spacing:.5px;}
@@ -58,23 +57,16 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text)
 [dir="rtl"] .nav-item.active{border-left-color:transparent;border-right-color:var(--accent2);}
 .nav-icon{width:32px;height:32px;border-radius:8px;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
 .nav-item.active .nav-icon{background:var(--accent);filter:drop-shadow(0 2px 8px rgba(26,107,138,.35));}
-
-/* MAIN */
 .main{margin-left:250px;margin-top:64px;padding:24px 28px;min-height:calc(100vh - 64px);transition:margin .3s;}
 [dir="rtl"] .main{margin-left:0;margin-right:250px;}
-
-/* SECTIONS */
 .section{display:none;animation:fadeUp .42s cubic-bezier(.22,1,.36,1);}
 .section.active{display:block;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-
-/* PAGE TITLE */
 .page-title{margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;}
 .page-title-left h1{font-family:'Cormorant Garamond',serif;font-size:29px;font-weight:600;color:var(--text);line-height:1.2;}
 .page-title-left p{font-size:13px;color:var(--text3);margin-top:4px;font-weight:500;}
 .page-title-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
 
-/* STAT CARDS */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px;}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);transition:transform .25s;position:relative;overflow:hidden;}
 .stat-card::before{content:'';position:absolute;top:-20px;right:-20px;width:70px;height:70px;border-radius:50%;background:var(--icon-bg);}
@@ -85,21 +77,18 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text)
 .stat-change{font-size:12px;font-weight:700;margin-top:4px;}
 .stat-change.up{color:#3a9e35;}
 .stat-change.down{color:#c84040;}
-
-/* CARDS */
+  
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--shadow);margin-bottom:18px;}
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
 .card-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:9px;}
 .card-actions{display:flex;gap:8px;}
 .chip{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text2);transition:all .2s;}
 .chip:hover,.chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-
-/* 2 COLS */
+  
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
 .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
 @media(max-width:1100px){.two-col{grid-template-columns:1fr;}.three-col{grid-template-columns:1fr 1fr;}}
-
-/* FORM */
+  
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;}
 .form-field{display:flex;flex-direction:column;gap:5px;}
 .form-field label{font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;}
@@ -112,8 +101,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text)
 .btn-secondary:hover{background:var(--icon-bg);}
 .btn-ghost{padding:9px 18px;background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .22s;}
 .btn-ghost:hover{border-color:var(--accent);color:var(--accent2);}
-
-/* MAP */
+  
 .map-container{border-radius:14px;overflow:hidden;border:1px solid var(--border);}
 #company-map{height:460px;width:100%;}
 .map-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
@@ -123,8 +111,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text)
 .map-stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
 .map-stat-val{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--accent2);}
 .map-stat-lbl{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;}
-
-/* DATA TABLE */
+  
 .data-table{width:100%;border-collapse:collapse;}
 .data-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;border-bottom:2px solid var(--border);white-space:nowrap;}
 [dir="rtl"] .data-table th{text-align:right;}
@@ -136,10 +123,8 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--bg);color:var(--text)
 .badge.red{background:rgba(200,60,40,.15);color:#a03020;}
 .badge.blue{background:rgba(26,107,138,.15);color:#1a6b8a;}
 
-/* CHARTS */
 canvas{max-width:100%;}
-
-/* PROGRESS */
+  
 .progress-row{margin-bottom:12px;}
 .progress-label{display:flex;justify-content:space-between;margin-bottom:4px;}
 .progress-label span:first-child{font-size:12.5px;font-weight:700;color:var(--text2);}
@@ -148,7 +133,6 @@ canvas{max-width:100%;}
 .progress-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 1s cubic-bezier(.22,1,.36,1);}
 .progress-fill.green{background:linear-gradient(90deg,var(--green),var(--green2));}
 
-/* ALERTS */
 .alert-card{border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;border:1.5px solid;}
 .alert-card.info{background:rgba(26,107,138,.06);border-color:rgba(26,107,138,.2);}
 .alert-card.warning{background:rgba(220,140,20,.06);border-color:rgba(220,140,20,.25);}
@@ -158,7 +142,6 @@ canvas{max-width:100%;}
 .alert-title{font-weight:800;font-size:13px;margin-bottom:2px;color:var(--text);}
 .alert-body{font-size:12.5px;color:var(--text2);line-height:1.5;}
 
-/* KPI ROW */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px;}
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;transition:transform .22s;}
 .kpi:hover{transform:translateY(-2px);}
@@ -166,7 +149,6 @@ canvas{max-width:100%;}
 .kpi-val{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--accent2);}
 .kpi-lbl{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;margin-top:3px;}
 
-/* DOWNLOAD */
 .download-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
 .dl-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px;transition:all .25s;}
 .dl-card:hover{border-color:var(--accent);box-shadow:0 4px 20px rgba(26,107,138,.12);}
@@ -176,7 +158,6 @@ canvas{max-width:100%;}
 .dl-btn{align-self:flex-start;padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .22s;}
 .dl-btn:hover{background:var(--accent2);}
 
-/* SOLAR GAUGE */
 .solar-radial{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;text-align:center;}
 .solar-month{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 10px;}
 .solar-month-name{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;margin-bottom:8px;}
@@ -184,15 +165,13 @@ canvas{max-width:100%;}
 .solar-month-fill{position:absolute;bottom:0;width:100%;background:linear-gradient(180deg,#e8a020,#f0c840);border-radius:6px;transition:height .8s cubic-bezier(.22,1,.36,1);}
 .solar-month-val{font-size:12px;font-weight:800;color:var(--earth);margin-top:5px;}
 
-/* PROFITABILITY */
 .profit-card{background:linear-gradient(135deg,var(--accent) 0%,#0d4a60 100%);border-radius:16px;padding:24px;color:#fff;position:relative;overflow:hidden;margin-bottom:18px;}
 .profit-card::before{content:'';position:absolute;right:-30px;top:-30px;width:160px;height:160px;background:rgba(255,255,255,.06);border-radius:50%;}
 .profit-card::after{content:'💰';position:absolute;right:20px;bottom:0;font-size:60px;opacity:.12;line-height:1;}
 .profit-val{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:700;line-height:1;}
 .profit-label{font-size:13px;opacity:.8;margin-top:5px;}
 .profit-change{font-size:14px;font-weight:800;margin-top:10px;}
-
-/* SCROLLBAR */
+  
 ::-webkit-scrollbar{width:5px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--sand2);border-radius:5px;}
@@ -323,8 +302,7 @@ canvas{max-width:100%;}
     </div>
   </div>
 </section>
-
-<!-- ═══ LAND ═══ -->
+  
 <section class="section" id="sec-land">
   <div class="page-title"><div class="page-title-left"><h1 id="land-title">📍 Land Information</h1><p id="land-sub">Multi-site land data management</p></div></div>
   <div class="card">
@@ -346,8 +324,7 @@ canvas{max-width:100%;}
     </div>
   </div>
 </section>
-
-<!-- ═══ MAP ═══ -->
+  
 <section class="section" id="sec-map">
   <div class="page-title"><div class="page-title-left"><h1 id="map-title">🗺️ Algerian Desert Intelligence Map</h1><p id="map-sub">Satellite imagery with arid zone overlays and multi-site tracking</p></div></div>
   <div class="card">
@@ -368,8 +345,7 @@ canvas{max-width:100%;}
     </div>
   </div>
 </section>
-
-<!-- ═══ SOIL ═══ -->
+  
 <section class="section" id="sec-soil">
   <div class="page-title"><div class="page-title-left"><h1 id="soil-title">🌱 Soil & Climate Analytics</h1><p id="soil-sub">Multi-parameter environmental data entry and analysis</p></div></div>
   <div class="two-col">
@@ -433,8 +409,7 @@ canvas{max-width:100%;}
     </div>
   </div>
 </section>
-
-<!-- ═══ YIELD ═══ -->
+  
 <section class="section" id="sec-yield">
   <div class="page-title"><div class="page-title-left"><h1 id="yield-title">📈 Yield Forecast</h1><p id="yield-sub">Multi-site production projections with confidence intervals</p></div></div>
   <div class="kpi-grid">
@@ -449,8 +424,7 @@ canvas{max-width:100%;}
     <div class="card"><div class="card-header"><div class="card-title">🏆 <span id="yct2">Yield by Site</span></div></div><canvas id="yieldBarChart" height="130"></canvas></div>
   </div>
 </section>
-
-<!-- ═══ IRRIGATION ═══ -->
+  
 <section class="section" id="sec-irrig">
   <div class="page-title"><div class="page-title-left"><h1 id="irrig-title">💧 Irrigation Analytics</h1><p id="irrig-sub">Smart irrigation scheduling across all monitored sites</p></div></div>
   <div class="two-col">
@@ -467,8 +441,7 @@ canvas{max-width:100%;}
     </div>
   </div>
 </section>
-
-<!-- ═══ WATER ═══ -->
+  
 <section class="section" id="sec-water">
   <div class="page-title"><div class="page-title-left"><h1 id="water-title">🚿 Water Analytics</h1><p id="water-sub">Comprehensive water usage and efficiency analysis</p></div></div>
   <div class="stats-row">
@@ -490,8 +463,7 @@ canvas{max-width:100%;}
     </div>
   </div>
 </section>
-
-<!-- ═══ SOLAR ═══ -->
+  
 <section class="section" id="sec-solar">
   <div class="page-title"><div class="page-title-left"><h1 id="solar-title">⚡ Solar Energy Forecast</h1><p id="solar-sub">Solar production potential and energy optimization analytics</p></div></div>
   <div class="two-col">
@@ -507,8 +479,7 @@ canvas{max-width:100%;}
     </div>
   </div>
 </section>
-
-<!-- ═══ PERF ═══ -->
+  
 <section class="section" id="sec-perf">
   <div class="page-title"><div class="page-title-left"><h1 id="perf-title">🏆 Farm Performance Analytics</h1><p id="perf-sub">Comprehensive KPI tracking and benchmarking</p></div></div>
   <div class="two-col">
@@ -516,8 +487,7 @@ canvas{max-width:100%;}
     <div class="card"><div class="card-header"><div class="card-title">📈 <span id="pct2">Performance Score Trend</span></div></div><canvas id="perfTrendChart" height="140"></canvas></div>
   </div>
 </section>
-
-<!-- ═══ PROFIT ═══ -->
+  
 <section class="section" id="sec-profit">
   <div class="page-title"><div class="page-title-left"><h1 id="profit-title">💰 Profitability Analysis</h1><p id="profit-sub">Revenue estimation, cost breakdown, and ROI projections</p></div></div>
   <div class="profit-card">
@@ -530,8 +500,7 @@ canvas{max-width:100%;}
     <div class="card"><div class="card-header"><div class="card-title">📉 <span id="prf-ct2">Cost Breakdown</span></div></div><canvas id="costChart" height="130"></canvas></div>
   </div>
 </section>
-
-<!-- ═══ ALERTS ═══ -->
+  
 <section class="section" id="sec-alerts">
   <div class="page-title"><div class="page-title-left"><h1 id="alerts-title">🔔 Alert System</h1><p id="alerts-sub">Intelligent monitoring alerts across all farm sites</p></div></div>
   <div class="alert-card critical"><div class="alert-icon">🚨</div><div><div class="alert-title" id="al1-t">Extreme Heat Event — Farm E</div><div class="alert-body" id="al1-b">Forecast shows 48°C peak for next Tuesday in Tamanrasset. Activate emergency shading and pre-irrigate all plots. Consider harvesting heat-sensitive crops early.</div></div></div>
@@ -541,7 +510,6 @@ canvas{max-width:100%;}
   <div class="alert-card info"><div class="alert-icon">📊</div><div><div class="alert-title" id="al5-t">Q3 Report Ready</div><div class="alert-body" id="al5-b">Your Q3 agricultural performance report is ready for download. Contains yield, water efficiency, and profitability analysis for all 12 sites.</div></div></div>
 </section>
 
-<!-- ═══ EXPORT ═══ -->
 <section class="section" id="sec-export">
   <div class="page-title"><div class="page-title-left"><h1 id="export-title">📥 Download Insights</h1><p id="export-sub">Export data, reports, and analytics in various formats</p></div></div>
   <div class="download-grid">
@@ -563,7 +531,6 @@ let currentLang = 'en', currentMode = 'day';
 let companyMap, satL, terrainL, aridL, sitesL, heatL;
 let mapReady = false, drawMode = false, drawnPoly = null;
 
-// Set date
 document.getElementById('h-date').textContent = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 
 const T = {
@@ -727,7 +694,7 @@ function toggleMode() {
   document.body.dataset.mode = currentMode;
   document.getElementById('mode-btn').textContent = currentMode === 'night' ? '🌙' : '☀️';
   if (companyMap) setTimeout(() => companyMap.invalidateSize(), 300);
-  // Redraw charts
+
   Object.values(chartInstances).forEach(c => { if (c) c.destroy(); });
   Object.keys(chartInstances).forEach(k => chartInstances[k] = null);
   setTimeout(renderCurrentCharts, 150);
@@ -762,7 +729,6 @@ function showSection(id) {
   setTimeout(renderCurrentCharts, 120);
 }
 
-// ══ MAP ══
 function initMap() {
   companyMap = L.map('company-map', {zoomControl:true, attributionControl:false}).setView([28, 3], 5);
   satL = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom:18}).addTo(companyMap);
@@ -772,7 +738,7 @@ function initMap() {
     L.polygon([[22,0],[22,12],[28,12],[28,0]], {color:'#e0a020',fillColor:'#e0a020',fillOpacity:.15,weight:1.5}),
     L.polygon([[28,0],[28,12],[33,12],[33,0]], {color:'#80c040',fillColor:'#80c040',fillOpacity:.12,weight:1.5}),
   ]);
-  // Farm sites
+ 
   const farms = [
     {lat:31.95,lng:5.32,name:'Farm A (Ouargla)',color:'#3a8035'},
     {lat:32.49,lng:3.67,name:'Farm B (Ghardaïa)',color:'#3a8035'},
@@ -805,7 +771,6 @@ function toggleDraw() { drawMode = !drawMode; document.getElementById('mbtn-draw
 function toggleHeat() { document.getElementById('mbtn-heat').classList.toggle('active'); }
 function clearMap() { if (drawnPoly && companyMap) { companyMap.removeLayer(drawnPoly); drawnPoly = null; } document.getElementById('ms-area').textContent = '—'; document.getElementById('ms-arid').textContent = '—'; document.getElementById('ms-solar').textContent = '—'; }
 
-// ══ CHARTS ══
 const chartInstances = {};
 function gc() { return currentMode === 'night' ? {grid:'rgba(255,255,255,.07)',text:'#8090a8',bg:'#131820'} : {grid:'rgba(0,0,0,.06)',text:'#6b4c2a',bg:'#fff'}; }
 
