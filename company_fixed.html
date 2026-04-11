@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sahrana — Company Dashboard</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a6b8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Nunito+Sans:wght@300;400;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <style>
@@ -260,6 +264,12 @@ canvas{max-width:100%;}
   <div class="nav-item" onclick="showSection('export')">
     <div class="nav-icon">📥</div><span id="nv-export">Download Insights</span>
   </div>
+  <div class="nav-item" onclick="showSection('farmers')">
+    <div class="nav-icon">🌾</div><span id="nv-farmers">Farmers</span>
+  </div>
+  <div class="nav-item" onclick="showSection('profile')">
+    <div class="nav-icon">👤</div><span id="nv-profile">My Profile</span>
+  </div>
 </nav>
 <main class="main">
 <section class="section active" id="sec-overview">
@@ -331,14 +341,14 @@ canvas{max-width:100%;}
   <div class="card">
     <div class="card-header"><div class="card-title">🏗️ <span id="land-ct1">Site Registration</span></div></div>
     <div class="form-grid">
-      <div class="form-field"><label id="lf-site">Site Name / ID</label><input class="form-input" placeholder="e.g. Farm-Alpha-01"></div>
-      <div class="form-field"><label id="lf-wilaya">Wilaya</label><select class="form-input"><option>Ouargla</option><option>Ghardaïa</option><option>Biskra</option><option>Adrar</option><option>Tamanrasset</option><option>Illizi</option><option>Tindouf</option><option>El Oued</option><option>Béchar</option></select></div>
-      <div class="form-field"><label id="lf-area">Total Area (ha)</label><input class="form-input" type="number" placeholder="e.g. 850"></div>
-      <div class="form-field"><label id="lf-cult">Cultivable Area (ha)</label><input class="form-input" type="number" placeholder="e.g. 720"></div>
-      <div class="form-field"><label id="lf-lat">GPS Latitude</label><input class="form-input" type="number" step="0.0001" placeholder="e.g. 31.9539"></div>
-      <div class="form-field"><label id="lf-lon">GPS Longitude</label><input class="form-input" type="number" step="0.0001" placeholder="e.g. 5.3232"></div>
-      <div class="form-field"><label id="lf-elev">Elevation (m)</label><input class="form-input" type="number" placeholder="e.g. 165"></div>
-      <div class="form-field"><label id="lf-own">Ownership Type</label><select class="form-input"><option id="lo-company">Company Owned</option><option id="lo-lease">Leased</option><option id="lo-joint">Joint Venture</option><option id="lo-gov">Government Concession</option></select></div>
+      <div class="form-field"><label id="lf-site">Site Name / ID</label><input class="form-input" id="inp-site-name" placeholder="e.g. Farm-Alpha-01"></div>
+      <div class="form-field"><label id="lf-wilaya">Wilaya</label><select class="form-input" id="sel-site-wilaya"><option>Ouargla</option><option>Ghardaïa</option><option>Biskra</option><option>Adrar</option><option>Tamanrasset</option><option>Illizi</option><option>Tindouf</option><option>El Oued</option><option>Béchar</option></select></div>
+      <div class="form-field"><label id="lf-area">Total Area (ha)</label><input class="form-input" type="number" id="inp-site-area" placeholder="e.g. 850"></div>
+      <div class="form-field"><label id="lf-cult">Cultivable Area (ha)</label><input class="form-input" type="number" id="inp-site-cult" placeholder="e.g. 720"></div>
+      <div class="form-field"><label id="lf-lat">GPS Latitude</label><input class="form-input" type="number" step="0.0001" id="inp-site-lat" placeholder="e.g. 31.9539"></div>
+      <div class="form-field"><label id="lf-lon">GPS Longitude</label><input class="form-input" type="number" step="0.0001" id="inp-site-lon" placeholder="e.g. 5.3232"></div>
+      <div class="form-field"><label id="lf-elev">Elevation (m)</label><input class="form-input" type="number" id="inp-site-elev" placeholder="e.g. 165"></div>
+      <div class="form-field"><label id="lf-own">Ownership Type</label><select class="form-input" id="sel-site-own"><option id="lo-company">Company Owned</option><option id="lo-lease">Leased</option><option id="lo-joint">Joint Venture</option><option id="lo-gov">Government Concession</option></select></div>
     </div>
     <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;">
       <button class="btn-primary" id="btn-register">+ Register Site</button>
@@ -555,6 +565,39 @@ canvas{max-width:100%;}
   </div>
 </section>
 
+<!-- ═══ FARMERS ═══ -->
+<section class="section" id="sec-farmers">
+  <div class="page-title">
+    <div class="page-title-left">
+      <h1 id="farmers-title">🌾 Farmer Profiles</h1>
+      <p id="farmers-sub">View all registered farmers linked to your company</p>
+    </div>
+    <button class="btn-ghost" id="btn-export-farmers" style="font-size:12.5px;padding:8px 16px;">📥 Export CSV</button>
+  </div>
+  <div id="farmers-list"></div>
+</section>
+
+<!-- ═══ PROFILE ═══ -->
+<section class="section" id="sec-profile">
+  <div class="page-title">
+    <div class="page-title-left">
+      <h1 id="profile-title">👤 My Profile</h1>
+      <p id="profile-sub">Your account and company details</p>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;flex-wrap:wrap;">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;" id="profile-avatar">C</div>
+      <div>
+        <div style="font-size:22px;font-weight:700;color:var(--text);" id="profile-name">—</div>
+        <div style="font-size:13px;color:var(--text3);" id="profile-email">—</div>
+        <div style="font-size:12px;color:var(--accent);font-weight:600;margin-top:3px;" id="profile-role-badge">Company</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;" id="profile-summary"></div>
+  </div>
+</section>
+
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -562,7 +605,7 @@ canvas{max-width:100%;}
 <script>
 // ── Auth guard ─────────────────────────────────────────────────────────────
 (function(){
-  const u = sessionStorage.getItem('sahrana_user');
+  const u = localStorage.getItem('sahrana_user');
   if(!u){ window.location.href = 'login_fixed.html'; return; }
   const user = JSON.parse(u);
   if(user.role === 'farmer'){
@@ -579,7 +622,7 @@ canvas{max-width:100%;}
 })();
 
 function doLogout(){
-  sessionStorage.removeItem('sahrana_user');
+  localStorage.removeItem('sahrana_user');
   window.location.href = 'login_fixed.html';
 }
 
@@ -779,10 +822,12 @@ function showSection(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
-  const navMap = {overview:0,land:1,map:2,soil:3,crops:4,yield:5,irrig:6,water:7,solar:8,perf:9,profit:10,alerts:11,export:12};
+  const navMap = {overview:0,land:1,map:2,soil:3,crops:4,yield:5,irrig:6,water:7,solar:8,perf:9,profit:10,alerts:11,export:12,farmers:13,profile:14};
   const items = document.querySelectorAll('.nav-item');
   if (items[navMap[id]]) items[navMap[id]].classList.add('active');
   if (id === 'map' && !mapReady) { setTimeout(initMap, 200); mapReady = true; }
+  if (id === 'farmers') renderFarmers();
+  if (id === 'profile') renderCompanyProfile();
   setTimeout(renderCurrentCharts, 120);
 }
 
@@ -826,7 +871,6 @@ function switchLayer(type) {
 function toggleArid() { if (!companyMap) return; if (companyMap.hasLayer(aridL)) companyMap.removeLayer(aridL); else aridL.addTo(companyMap); document.getElementById('mbtn-arid').classList.toggle('active'); }
 function toggleSites() { if (!companyMap) return; if (companyMap.hasLayer(sitesL)) companyMap.removeLayer(sitesL); else sitesL.addTo(companyMap); document.getElementById('mbtn-sites').classList.toggle('active'); }
 function toggleDraw() { drawMode = !drawMode; document.getElementById('mbtn-draw').classList.toggle('active', drawMode); if (companyMap) companyMap.getContainer().style.cursor = drawMode ? 'crosshair' : ''; }
-function toggleHeat() { document.getElementById('mbtn-heat').classList.toggle('active'); }
 function clearMap() { if (drawnPoly && companyMap) { companyMap.removeLayer(drawnPoly); drawnPoly = null; } document.getElementById('ms-area').textContent = '—'; document.getElementById('ms-arid').textContent = '—'; document.getElementById('ms-solar').textContent = '—'; }
 
 // ══ CHARTS ══
@@ -957,7 +1001,311 @@ function initCostChart() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initPerfChart(); initResourceChart();
+
+  // ── Register Site button (fixed — uses IDs, not fragile index lookup) ──────
+  document.getElementById('btn-register').addEventListener('click', function() {
+    const siteName  = document.getElementById('inp-site-name').value.trim();
+    const wilaya    = document.getElementById('sel-site-wilaya').value;
+    const totalArea = document.getElementById('inp-site-area').value.trim();
+    const cultArea  = document.getElementById('inp-site-cult').value.trim();
+    const lat       = document.getElementById('inp-site-lat').value.trim();
+    const lon       = document.getElementById('inp-site-lon').value.trim();
+    const elev      = document.getElementById('inp-site-elev').value.trim();
+    const own       = document.getElementById('sel-site-own').value;
+
+    if (!siteName || !totalArea) {
+      showToast('⚠️ Please fill in at least Site Name and Total Area.', 'warn'); return;
+    }
+
+    // Input range validation
+    const errors = [];
+    if (totalArea && (parseFloat(totalArea) < 0.1 || parseFloat(totalArea) > 1000000)) errors.push('Total Area must be 0.1–1,000,000 ha');
+    if (cultArea  && (parseFloat(cultArea)  < 0   || parseFloat(cultArea)  > parseFloat(totalArea || 1000000))) errors.push('Cultivable area cannot exceed total area');
+    if (lat && (parseFloat(lat) < 18 || parseFloat(lat) > 38))   errors.push('Latitude must be 18–38° (Algeria range)');
+    if (lon && (parseFloat(lon) < -3 || parseFloat(lon) > 12))   errors.push('Longitude must be -3–12° (Algeria range)');
+    if (elev && (parseFloat(elev) < -100 || parseFloat(elev) > 3000)) errors.push('Elevation must be -100–3,000 m');
+    if (errors.length) { showToast('⚠️ ' + errors[0], 'warn'); return; }
+
+    const sites = JSON.parse(localStorage.getItem('sahrana_sites') || '[]');
+    if (sites.find(s => s.name === siteName)) {
+      showToast('⚠️ A site with this name is already registered.', 'warn'); return;
+    }
+    sites.push({ name:siteName, wilaya, totalArea, cultArea, lat, lon, elev, own, registered: new Date().toLocaleDateString('en-GB') });
+    localStorage.setItem('sahrana_sites', JSON.stringify(sites));
+    // Clear fields
+    ['inp-site-name','inp-site-area','inp-site-cult','inp-site-lat','inp-site-lon','inp-site-elev'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    showToast(`✅ Site "${siteName}" registered successfully!`, 'success');
+    // Add marker to map if open
+    if (companyMap && lat && lon) {
+      L.circleMarker([parseFloat(lat), parseFloat(lon)], {radius:9,color:'#3a8035',fillColor:'#3a8035',fillOpacity:.85,weight:2})
+       .bindPopup(`<b>${siteName}</b><br>${wilaya}`).addTo(companyMap);
+    }
+  });
+
+  // ── Import CSV button ───────────────────────────────────────────────────
+  document.getElementById('btn-import').addEventListener('click', function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const lines = ev.target.result.trim().split('\n');
+        const header = lines[0].toLowerCase();
+        if (!header.includes('name') && !header.includes('site')) {
+          showToast('⚠️ CSV must have a header row with at least a "name" column.', 'warn'); return;
+        }
+        const cols = lines[0].split(',').map(c => c.trim().toLowerCase());
+        const nameIdx    = cols.findIndex(c => c.includes('name') || c.includes('site'));
+        const wilayaIdx  = cols.findIndex(c => c.includes('wilaya') || c.includes('region'));
+        const areaIdx    = cols.findIndex(c => c.includes('area'));
+        const latIdx     = cols.findIndex(c => c.includes('lat'));
+        const lonIdx     = cols.findIndex(c => c.includes('lon') || c.includes('lng'));
+        const sites = JSON.parse(localStorage.getItem('sahrana_sites') || '[]');
+        let added = 0;
+        lines.slice(1).forEach(line => {
+          const cells = line.split(',').map(c => c.trim());
+          const name = cells[nameIdx] || '';
+          if (!name || sites.find(s => s.name === name)) return;
+          sites.push({
+            name,
+            wilaya:    wilayaIdx >= 0 ? cells[wilayaIdx] : '—',
+            totalArea: areaIdx >= 0   ? cells[areaIdx]   : '—',
+            lat:       latIdx >= 0    ? cells[latIdx]     : '',
+            lon:       lonIdx >= 0    ? cells[lonIdx]     : '',
+            registered: new Date().toLocaleDateString('en-GB')
+          });
+          added++;
+        });
+        localStorage.setItem('sahrana_sites', JSON.stringify(sites));
+        showToast(`✅ Imported ${added} site(s) from CSV.`, 'success');
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  });
+
+  // ── Download buttons ────────────────────────────────────────────────────
+  function downloadText(filename, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  document.getElementById('dl2-b').addEventListener('click', function() {
+    const sites = JSON.parse(localStorage.getItem('sahrana_sites') || '[]');
+    const rows = [['Site Name','Wilaya','Total Area (ha)','Latitude','Longitude','Registered']];
+    sites.forEach(s => rows.push([s.name, s.wilaya, s.totalArea, s.lat, s.lon, s.registered]));
+    if (rows.length === 1) rows.push(['No sites registered yet','','','','','']);
+    downloadText('sahrana_soil_data.csv', rows.map(r => r.join(',')).join('\n'), 'text/csv');
+  });
+
+  document.getElementById('dl3-b').addEventListener('click', function() {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const usage  = [420,390,360,500,620,750,810,800,710,580,450,400];
+    const rows   = [['Month','Water Usage (m³)','Efficiency Score']];
+    months.forEach((m,i) => rows.push([m, usage[i], (60 + Math.round(Math.random()*20)) + '%']));
+    downloadText('sahrana_water_usage.csv', rows.map(r => r.join(',')).join('\n'), 'text/csv');
+  });
+
+  document.getElementById('dl5-b').addEventListener('click', function() {
+    const crops = ['Date Palm','Olive','Onion','Henna'];
+    const revenue = [520000, 220000, 140000, 80000];
+    const costs   = [180000,  90000,  60000, 35000];
+    const rows    = [['Crop','Revenue (DZD)','Cost (DZD)','Profit (DZD)','ROI (%)']];
+    crops.forEach((c,i) => rows.push([c, revenue[i], costs[i], revenue[i]-costs[i], (((revenue[i]-costs[i])/costs[i])*100).toFixed(1)+'%']));
+    downloadText('sahrana_profitability.csv', rows.map(r => r.join(',')).join('\n'), 'text/csv');
+  });
+
+  document.getElementById('dl6-b').addEventListener('click', function() {
+    const sites = JSON.parse(localStorage.getItem('sahrana_sites') || '[]');
+    const features = sites.filter(s => s.lat && s.lon).map(s => ({
+      type:'Feature',
+      properties:{ name:s.name, wilaya:s.wilaya },
+      geometry:{ type:'Point', coordinates:[parseFloat(s.lon), parseFloat(s.lat)] }
+    }));
+    const geojson = { type:'FeatureCollection', features };
+    downloadText('sahrana_sites.geojson', JSON.stringify(geojson, null, 2), 'application/json');
+  });
+
+  ['dl1-b','dl4-b'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function() {
+      showToast('📄 PDF export requires a running backend. Coming soon!', 'info');
+    });
+  });
+
+  // ── Toast notification helper ───────────────────────────────────────────
+  window.showToast = function(msg, type) {
+    let toast = document.getElementById('sahrana-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'sahrana-toast';
+      toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:12px;font-size:13.5px;font-weight:700;z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.18);transition:opacity .3s;white-space:nowrap;';
+      document.body.appendChild(toast);
+    }
+    const colors = { success:'background:#d1fae5;color:#065f46;', warn:'background:#fef3c7;color:#92400e;', info:'background:#dbeafe;color:#1e40af;' };
+    toast.style.cssText += colors[type] || colors.info;
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+  };
 });
+
+// ── Fix Heat Map layer (was toggle-only, now adds actual layer) ─────────────
+let heatActive = false;
+let heatLayer = null;
+function toggleHeat() {
+  if (!companyMap) return;
+  heatActive = !heatActive;
+  document.getElementById('mbtn-heat').classList.toggle('active', heatActive);
+  if (heatActive) {
+    // Simulated heat zones over Algerian desert using colored polygons
+    const heatZones = [
+      { bounds:[[18,0],[22,12]], color:'#ff2200', label:'52°C' },
+      { bounds:[[22,0],[26,12]], color:'#ff6600', label:'46°C' },
+      { bounds:[[26,0],[30,12]], color:'#ff9900', label:'40°C' },
+      { bounds:[[30,0],[34,12]], color:'#ffcc00', label:'34°C' },
+    ];
+    heatLayer = L.layerGroup(heatZones.map(z =>
+      L.rectangle(z.bounds, { color:z.color, fillColor:z.color, fillOpacity:.22, weight:0 })
+       .bindTooltip(`Avg temp: ${z.label}`, {permanent:false, sticky:true})
+    ));
+    heatLayer.addTo(companyMap);
+  } else {
+    if (heatLayer) { companyMap.removeLayer(heatLayer); heatLayer = null; }
+  }
+}
+
+// ── Farmers Profiles Section ─────────────────────────────────────────────────
+function renderFarmers() {
+  const list = document.getElementById('farmers-list');
+  if (!list) return;
+
+  // Farmers come from shared localStorage key that farmer accounts write to
+  // Show registered sites + any users with role=farmer from localStorage
+  const sites   = JSON.parse(localStorage.getItem('sahrana_sites') || '[]');
+  const allUsers = JSON.parse(localStorage.getItem('sahrana_users') || '[]');
+  const farmers  = allUsers.filter(u => u.role === 'farmer');
+
+  if (sites.length === 0 && farmers.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:48px;color:var(--text3);">
+      <div style="font-size:48px;margin-bottom:12px;">👥</div>
+      <div style="font-size:15px;font-weight:600;">No farmers registered yet</div>
+      <div style="font-size:13px;margin-top:6px;">Farmers who register via the login page will appear here. Sites registered in Land Information are shown below.</div>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+
+  // Registered farmer accounts
+  if (farmers.length > 0) {
+    html += `<div style="font-size:13px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;">👤 Registered Farmer Accounts</div>`;
+    html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:24px;">`;
+    html += farmers.map(f => `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;gap:14px;align-items:flex-start;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;">${(f.name||'F')[0].toUpperCase()}</div>
+        <div style="min-width:0;">
+          <div style="font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.name||'—'}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px;">${f.email||'—'}</div>
+          ${f.phone ? `<div style="font-size:12px;color:var(--text3);">📞 ${f.phone}</div>` : ''}
+          ${f.org   ? `<div style="font-size:12px;color:var(--text3);">🏡 ${f.org}</div>` : ''}
+        </div>
+      </div>`).join('');
+    html += `</div>`;
+  }
+
+  // Registered sites
+  if (sites.length > 0) {
+    html += `<div style="font-size:13px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;">📍 Registered Sites</div>`;
+    html += `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr style="border-bottom:2px solid var(--border);">
+        <th style="text-align:left;padding:10px 12px;color:var(--text3);font-weight:800;text-transform:uppercase;font-size:11px;">Site Name</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text3);font-weight:800;text-transform:uppercase;font-size:11px;">Wilaya</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text3);font-weight:800;text-transform:uppercase;font-size:11px;">Total Area</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text3);font-weight:800;text-transform:uppercase;font-size:11px;">Ownership</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text3);font-weight:800;text-transform:uppercase;font-size:11px;">GPS</th>
+        <th style="text-align:left;padding:10px 12px;color:var(--text3);font-weight:800;text-transform:uppercase;font-size:11px;">Registered</th>
+      </tr></thead><tbody>`;
+    html += sites.map((s,i) => `
+      <tr style="border-bottom:1px solid var(--border);background:${i%2===0?'transparent':'var(--bg2)'};">
+        <td style="padding:10px 12px;font-weight:700;color:var(--text);">${s.name}</td>
+        <td style="padding:10px 12px;color:var(--text2);">${s.wilaya||'—'}</td>
+        <td style="padding:10px 12px;color:var(--text2);">${s.totalArea ? s.totalArea+' ha' : '—'}</td>
+        <td style="padding:10px 12px;color:var(--text2);">${s.own||'—'}</td>
+        <td style="padding:10px 12px;color:var(--text2);font-size:11px;">${s.lat&&s.lon ? s.lat+'°N, '+s.lon+'°E' : '—'}</td>
+        <td style="padding:10px 12px;color:var(--text3);font-size:12px;">${s.registered||'—'}</td>
+      </tr>`).join('');
+    html += `</tbody></table></div>`;
+  }
+
+  list.innerHTML = html;
+}
+
+// Export farmers button
+document.addEventListener('DOMContentLoaded', function() {
+  const btnExportFarmers = document.getElementById('btn-export-farmers');
+  if (btnExportFarmers) {
+    btnExportFarmers.addEventListener('click', function() {
+      const sites = JSON.parse(localStorage.getItem('sahrana_sites') || '[]');
+      const rows  = [['Site Name','Wilaya','Total Area (ha)','Cultivable (ha)','Latitude','Longitude','Elevation (m)','Ownership','Registered']];
+      sites.forEach(s => rows.push([s.name, s.wilaya||'', s.totalArea||'', s.cultArea||'', s.lat||'', s.lon||'', s.elev||'', s.own||'', s.registered||'']));
+      if (rows.length === 1) { showToast('⚠️ No sites to export yet.', 'warn'); return; }
+      const blob = new Blob([rows.map(r=>r.join(',')).join('\n')], {type:'text/csv'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = 'sahrana_farmers.csv'; a.click(); URL.revokeObjectURL(a.href);
+    });
+  }
+});
+
+// ── Company Profile Section ───────────────────────────────────────────────────
+function renderCompanyProfile() {
+  const userData = JSON.parse(localStorage.getItem('sahrana_user') || '{}');
+  const sites    = JSON.parse(localStorage.getItem('sahrana_sites') || '[]');
+  const allUsers = JSON.parse(localStorage.getItem('sahrana_users') || '[]');
+  const farmers  = allUsers.filter(u => u.role === 'farmer');
+
+  const nameEl  = document.getElementById('profile-name');
+  const emailEl = document.getElementById('profile-email');
+  const avatEl  = document.getElementById('profile-avatar');
+  if (nameEl)  nameEl.textContent  = userData.name  || '—';
+  if (emailEl) emailEl.textContent = userData.email || '—';
+  if (avatEl)  avatEl.textContent  = (userData.name || 'C')[0].toUpperCase();
+
+  const badge = document.getElementById('profile-role-badge');
+  if (badge) badge.textContent = userData.role === 'agency' ? 'Agency' : 'Company';
+
+  const summaryEl = document.getElementById('profile-summary');
+  if (!summaryEl) return;
+  const items = [
+    { icon:'📍', label:'Sites Registered',    val: sites.length },
+    { icon:'🌾', label:'Farmer Accounts',     val: farmers.length },
+    { icon:'🏢', label:'Organisation',        val: userData.org   || '—' },
+    { icon:'📞', label:'Phone',               val: userData.phone || '—' },
+    { icon:'📧', label:'Role',                val: userData.role  || '—' },
+    { icon:'📅', label:'Total Area (ha)',      val: sites.reduce((s,x)=>s+parseFloat(x.totalArea||0),0).toFixed(1) + ' ha' },
+  ];
+  summaryEl.innerHTML = items.map(it => `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:22px;">${it.icon}</div>
+      <div style="font-size:13px;font-weight:800;color:var(--text);margin-top:4px;">${it.val}</div>
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;margin-top:2px;">${it.label}</div>
+    </div>`).join('');
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
