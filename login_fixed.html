@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sahrana — صحرانا</title>
-<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700;800&family=Cairo:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Nunito+Sans:wght@300;400;60０;7００;8００&family=Tajawal:wght@3００;4００;5００;7００;8００&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a6b8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700;800&family=Cairo:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&family=Cormorant+Garamond:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -658,6 +660,20 @@ WILAYAS.forEach(w=>{
   sel.appendChild(o);
 });
 
+// ── Auto-redirect if already logged in ───────────────────────────────────────
+(function(){
+  try {
+    const existing = localStorage.getItem('sahrana_user');
+    if(existing) {
+      const user = JSON.parse(existing);
+      if(user && user.role) {
+        const dest = user.role === 'farmer' ? 'farmer_fixed.html' : 'company_fixed.html';
+        window.location.replace(dest);
+      }
+    }
+  } catch(e) { localStorage.removeItem('sahrana_user'); }
+})();
+
 let currentTab = 'login';
 let currentLang = 'en';
 let selectedRole = null;
@@ -786,22 +802,30 @@ applyLang();
 
 // ── Auth logic ──────────────────────────────────────────────────────────────
 
-// Simple in-memory user store (persisted to sessionStorage)
-function getUsers() {
-  try { return JSON.parse(sessionStorage.getItem('sahrana_users') || '[]'); } catch(e){ return []; }
+// Hash a password string using SHA-256 (Web Crypto API)
+async function hashPassword(password) {
+  const encoded = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
-function saveUsers(u) { sessionStorage.setItem('sahrana_users', JSON.stringify(u)); }
 
-// Seed a demo account for each role so the app works out of the box
-(function seedDemo(){
-  const users = getUsers();
-  const emails = users.map(u=>u.email);
+// User store persisted to localStorage — passwords stored as SHA-256 hashes
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem('sahrana_users') || '[]'); } catch(e){ return []; }
+}
+function saveUsers(u) { localStorage.setItem('sahrana_users', JSON.stringify(u)); }
+
+// Seed demo accounts (passwords stored as hashes, never plaintext)
+(async function seedDemo(){
+  const users  = getUsers();
+  const emails = users.map(u => u.email);
+  const hash   = await hashPassword('demo1234');
   if(!emails.includes('farmer@demo.com'))
-    users.push({email:'farmer@demo.com', password:'demo1234', role:'farmer', name:'Demo Farmer'});
+    users.push({email:'farmer@demo.com',  passwordHash: hash, role:'farmer',  name:'Demo Farmer'});
   if(!emails.includes('company@demo.com'))
-    users.push({email:'company@demo.com', password:'demo1234', role:'company', name:'Demo Company'});
+    users.push({email:'company@demo.com', passwordHash: hash, role:'company', name:'Demo Company'});
   if(!emails.includes('agency@demo.com'))
-    users.push({email:'agency@demo.com', password:'demo1234', role:'agency', name:'Demo Agency'});
+    users.push({email:'agency@demo.com',  passwordHash: hash, role:'agency',  name:'Demo Agency'});
   saveUsers(users);
 })();
 
@@ -811,40 +835,193 @@ function dashboardFor(role){
   return 'company_fixed.html'; // agency uses company dashboard
 }
 
-// Login handler
-document.getElementById('btn-login').addEventListener('click', function(){
+// ── Validation helpers ───────────────────────────────────────────────────────
+function validateEmail(email) {
+  // Standard email regex — requires local@domain.tld
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
+function validatePassword(password) {
+  // Min 8 chars, at least one letter and one digit
+  return password.length >= 8 && /[A-Za-z]/.test(password) && /[0-9]/.test(password);
+}
+
+function validatePhone(phone) {
+  // Allow empty (optional field). If provided: +213 or 0 prefix, 9–13 digits total
+  if (!phone) return true;
+  return /^(\+213|0)[0-9\s\-]{8,12}$/.test(phone.replace(/\s/g, ' ').trim());
+}
+
+function validateName(name) {
+  // At least 2 chars, only letters, spaces, hyphens, apostrophes
+  return name.length >= 2 && /^[A-Za-zÀ-ÿ\u0600-\u06FF\s'\-]+$/.test(name);
+}
+
+function showFieldError(fieldId, msg) {
+  const el = document.getElementById(fieldId);
+  if (!el) return;
+  el.style.borderColor = '#e03030';
+  let hint = el.parentNode.querySelector('.field-error');
+  if (!hint) {
+    hint = document.createElement('span');
+    hint.className = 'field-error';
+    hint.style.cssText = 'font-size:11.5px;color:#e03030;font-weight:600;margin-top:4px;display:block;';
+    el.parentNode.appendChild(hint);
+  }
+  hint.textContent = msg;
+}
+
+function clearFieldError(fieldId) {
+  const el = document.getElementById(fieldId);
+  if (!el) return;
+  el.style.borderColor = '';
+  const hint = el.parentNode.querySelector('.field-error');
+  if (hint) hint.remove();
+}
+
+function clearAllErrors(ids) { ids.forEach(clearFieldError); }
+
+// Live validation on input events
+document.addEventListener('DOMContentLoaded', function() {
+  // Login — live feedback
+  document.getElementById('inp-email').addEventListener('blur', function() {
+    if (this.value && !validateEmail(this.value.trim()))
+      showFieldError('inp-email', currentLang==='ar' ? 'بريد إلكتروني غير صالح' : 'Invalid email address');
+    else clearFieldError('inp-email');
+  });
+  document.getElementById('inp-pass').addEventListener('blur', function() {
+    // Login password — just check it's not empty, don't show strength hints on login
+    clearFieldError('inp-pass');
+  });
+
+  // Signup — live feedback
+  document.getElementById('inp-name').addEventListener('blur', function() {
+    if (this.value && !validateName(this.value.trim()))
+      showFieldError('inp-name', currentLang==='ar' ? 'يُسمح بالأحرف والمسافات فقط (2+ حرف)' : 'Letters only, at least 2 characters');
+    else clearFieldError('inp-name');
+  });
+  document.getElementById('inp-semail').addEventListener('blur', function() {
+    if (this.value && !validateEmail(this.value.trim()))
+      showFieldError('inp-semail', currentLang==='ar' ? 'بريد إلكتروني غير صالح' : 'Invalid email address');
+    else clearFieldError('inp-semail');
+  });
+  document.getElementById('inp-phone').addEventListener('blur', function() {
+    if (this.value && !validatePhone(this.value.trim()))
+      showFieldError('inp-phone', currentLang==='ar' ? 'رقم الهاتف يجب أن يبدأ بـ +213 أو 0 (9–13 رقم)' : 'Must start with +213 or 0, 9–13 digits');
+    else clearFieldError('inp-phone');
+  });
+  document.getElementById('inp-spass').addEventListener('input', function() {
+    if (!this.value) { clearFieldError('inp-spass'); return; }
+    if (this.value.length < 8)
+      showFieldError('inp-spass', currentLang==='ar' ? '8 أحرف على الأقل' : 'At least 8 characters');
+    else if (!/[A-Za-z]/.test(this.value))
+      showFieldError('inp-spass', currentLang==='ar' ? 'يجب أن يحتوي على حرف واحد على الأقل' : 'Must contain at least one letter');
+    else if (!/[0-9]/.test(this.value))
+      showFieldError('inp-spass', currentLang==='ar' ? 'يجب أن يحتوي على رقم واحد على الأقل' : 'Must contain at least one number');
+    else clearFieldError('inp-spass');
+  });
+});
+
+// ── Login handler ────────────────────────────────────────────────────────────
+document.getElementById('btn-login').addEventListener('click', async function(){
+  clearAllErrors(['inp-email','inp-pass']);
   const email    = document.getElementById('inp-email').value.trim();
   const password = document.getElementById('inp-pass').value;
-  if(!email || !password){ showMsg('login', currentLang==='ar' ? 'يرجى تعبئة جميع الحقول' : 'Please fill in all fields.', 'error'); return; }
+  const isAr     = currentLang === 'ar';
+
+  let valid = true;
+  if (!email) {
+    showFieldError('inp-email', isAr ? 'البريد الإلكتروني مطلوب' : 'Email is required');
+    valid = false;
+  } else if (!validateEmail(email)) {
+    showFieldError('inp-email', isAr ? 'بريد إلكتروني غير صالح' : 'Invalid email address');
+    valid = false;
+  }
+  if (!password) {
+    showFieldError('inp-pass', isAr ? 'كلمة المرور مطلوبة' : 'Password is required');
+    valid = false;
+  }
+  if (!valid) return;
+
+  const hash  = await hashPassword(password);
   const users = getUsers();
-  const user  = users.find(u => u.email === email && u.password === password);
-  if(!user){ showMsg('login', currentLang==='ar' ? 'البريد أو كلمة المرور غير صحيحة' : 'Incorrect email or password.', 'error'); return; }
-  sessionStorage.setItem('sahrana_user', JSON.stringify(user));
-  showMsg('login', currentLang==='ar' ? 'جارٍ التوجيه…' : 'Logging in…', 'success');
+  const user  = users.find(u => u.email === email && u.passwordHash === hash);
+  if (!user) {
+    showMsg('login', isAr ? 'البريد أو كلمة المرور غير صحيحة' : 'Incorrect email or password.', 'error');
+    return;
+  }
+  const { passwordHash: _, ...safeUser } = user;
+  localStorage.setItem('sahrana_user', JSON.stringify(safeUser));
+  showMsg('login', isAr ? 'جارٍ التوجيه…' : 'Logging in…', 'success');
   setTimeout(()=>{ window.location.href = dashboardFor(user.role); }, 700);
 });
 
-// Signup handler
-document.getElementById('btn-signup').addEventListener('click', function(){
+// ── Signup handler ───────────────────────────────────────────────────────────
+document.getElementById('btn-signup').addEventListener('click', async function(){
+  clearAllErrors(['inp-name','inp-semail','inp-phone','inp-spass']);
   const name     = document.getElementById('inp-name').value.trim();
   const email    = document.getElementById('inp-semail').value.trim();
   const phone    = document.getElementById('inp-phone').value.trim();
   const password = document.getElementById('inp-spass').value;
   const org      = document.getElementById('inp-org').value.trim();
-  if(!name || !email || !password || !selectedRole){
-    showMsg('signup', currentLang==='ar' ? 'يرجى تعبئة جميع الحقول واختيار الدور' : 'Please fill all fields and select a role.', 'error');
-    return;
+  const isAr     = currentLang === 'ar';
+
+  let valid = true;
+
+  if (!name) {
+    showFieldError('inp-name', isAr ? 'الاسم الكامل مطلوب' : 'Full name is required');
+    valid = false;
+  } else if (!validateName(name)) {
+    showFieldError('inp-name', isAr ? 'أحرف فقط، حرفان على الأقل' : 'Letters only, at least 2 characters');
+    valid = false;
   }
+
+  if (!email) {
+    showFieldError('inp-semail', isAr ? 'البريد الإلكتروني مطلوب' : 'Email is required');
+    valid = false;
+  } else if (!validateEmail(email)) {
+    showFieldError('inp-semail', isAr ? 'بريد إلكتروني غير صالح' : 'Invalid email address');
+    valid = false;
+  }
+
+  if (phone && !validatePhone(phone)) {
+    showFieldError('inp-phone', isAr ? 'يجب أن يبدأ بـ +213 أو 0 (9–13 رقم)' : 'Must start with +213 or 0, 9–13 digits');
+    valid = false;
+  }
+
+  if (!password) {
+    showFieldError('inp-spass', isAr ? 'كلمة المرور مطلوبة' : 'Password is required');
+    valid = false;
+  } else if (!validatePassword(password)) {
+    if (password.length < 8)
+      showFieldError('inp-spass', isAr ? '8 أحرف على الأقل' : 'At least 8 characters');
+    else if (!/[A-Za-z]/.test(password))
+      showFieldError('inp-spass', isAr ? 'يجب أن يحتوي على حرف واحد على الأقل' : 'Must contain at least one letter');
+    else
+      showFieldError('inp-spass', isAr ? 'يجب أن يحتوي على رقم واحد على الأقل' : 'Must contain at least one number');
+    valid = false;
+  }
+
+  if (!selectedRole) {
+    showMsg('signup', isAr ? 'يرجى اختيار الدور' : 'Please select a role (Farmer, Company, or Agency).', 'error');
+    valid = false;
+  }
+
+  if (!valid) return;
+
   const users = getUsers();
-  if(users.find(u=>u.email===email)){
-    showMsg('signup', currentLang==='ar' ? 'البريد الإلكتروني مسجّل مسبقاً' : 'This email is already registered.', 'error');
+  if (users.find(u => u.email === email)) {
+    showFieldError('inp-semail', isAr ? 'البريد الإلكتروني مسجّل مسبقاً' : 'This email is already registered');
     return;
   }
-  const user = { email, password, role: selectedRole, name, phone, org };
+
+  const passwordHash = await hashPassword(password);
+  const user = { email, passwordHash, role: selectedRole, name, phone, org };
   users.push(user);
   saveUsers(users);
-  sessionStorage.setItem('sahrana_user', JSON.stringify(user));
-  showMsg('signup', currentLang==='ar' ? 'تم إنشاء الحساب! جارٍ التوجيه…' : 'Account created! Redirecting…', 'success');
+  const { passwordHash: _, ...safeUser } = user;
+  localStorage.setItem('sahrana_user', JSON.stringify(safeUser));
+  showMsg('signup', isAr ? 'تم إنشاء الحساب! جارٍ التوجيه…' : 'Account created! Redirecting…', 'success');
   setTimeout(()=>{ window.location.href = dashboardFor(selectedRole); }, 800);
 });
 
@@ -862,6 +1039,12 @@ function showMsg(form, text, type){
   el.textContent = text;
   el.style.background = type==='error' ? '#fee2e2' : '#d1fae5';
   el.style.color       = type==='error' ? '#b91c1c' : '#065f46';
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
 }
 </script>
 </body>
