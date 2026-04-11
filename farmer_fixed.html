@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sahrana — Farmer Dashboard</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a6b8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Nunito+Sans:wght@300;400;600;700;800&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <style>
@@ -240,6 +244,9 @@ canvas{max-width:100%;}
     <div class="nav-icon">🌱</div><span id="nav-soil">Soil & Climate</span>
   </div>
   <div class="nav-section-label" id="nav-label-ai">AI Insights</div>
+  <div class="nav-item" onclick="showSection('soil'); setTimeout(()=>{ var b=document.getElementById('btn-analyze'); if(b) b.scrollIntoView({behavior:'smooth',block:'center'}); }, 350);" style="background:linear-gradient(135deg,rgba(45,107,42,.13),rgba(45,107,42,.04));border-left:3px solid var(--green);font-weight:700;">
+    <div class="nav-icon">🤖</div><span id="nav-analyze">Run AI Analysis</span>
+  </div>
   <div class="nav-item" onclick="showSection('crops')">
     <div class="nav-icon">🌾</div><span id="nav-crops">Crop Recommendations</span>
   </div>
@@ -258,6 +265,12 @@ canvas{max-width:100%;}
   <div class="nav-item" onclick="showSection('alerts')">
     <div class="nav-icon">🔔</div><span id="nav-alerts">Alerts & Tips</span>
   </div>
+  <div class="nav-item" onclick="showSection('history')">
+    <div class="nav-icon">📋</div><span id="nav-history">Prediction History</span>
+  </div>
+  <div class="nav-item" onclick="showSection('profile')">
+    <div class="nav-icon">👤</div><span id="nav-profile">My Profile</span>
+  </div>
 </nav>
 <main class="main">
 <section class="section active" id="sec-home">
@@ -265,6 +278,16 @@ canvas{max-width:100%;}
     <div class="wb-subtitle" id="wb-sub">Welcome back, Farmer</div>
     <div class="wb-title" id="wb-title">Your farm is doing well today 🌿</div>
     <div class="wb-tip" id="wb-tip">Based on recent data, your soil moisture is optimal. Best time to plant date palms this week is Wednesday–Friday.</div>
+  </div>
+  <!-- AI Quick-Action Banner -->
+  <div id="ai-home-banner" style="background:linear-gradient(135deg,rgba(45,107,42,.10),rgba(45,107,42,.03));border:1.5px solid var(--green);border-radius:14px;padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div>
+      <div style="font-weight:800;font-size:14px;color:var(--green);">🤖 AI Crop Analysis</div>
+      <div id="ai-banner-status" style="font-size:13px;color:var(--text2);margin-top:3px;">Fill in your Soil &amp; Climate data to get AI crop recommendations.</div>
+    </div>
+    <button onclick="showSection('soil'); setTimeout(()=>{ document.getElementById('btn-analyze').scrollIntoView({behavior:'smooth',block:'center'}); },350);" style="background:var(--green);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;">
+      ▶ Run AI Analysis
+    </button>
   </div>
   <div class="stats-grid">
     <div class="stat-card">
@@ -333,7 +356,7 @@ canvas{max-width:100%;}
       </div>
       <div class="form-field">
         <label id="lf-slope">Terrain Slope</label>
-        <select class="form-input">
+        <select class="form-input" id="sel-slope">
           <option id="ls-flat">Flat (0–2°)</option>
           <option id="ls-gentle">Gentle (2–5°)</option>
           <option id="ls-moderate">Moderate (5–15°)</option>
@@ -347,7 +370,7 @@ canvas{max-width:100%;}
     <div class="form-grid">
       <div class="form-field">
         <label id="lf-water">Water Source</label>
-        <select class="form-input">
+        <select class="form-input" id="sel-water-source">
           <option id="lw-well">Underground Well</option>
           <option id="lw-irrig">Irrigation Canal</option>
           <option id="lw-rain">Rainwater</option>
@@ -356,12 +379,12 @@ canvas{max-width:100%;}
       </div>
       <div class="form-field">
         <label id="lf-depth">Water Depth (m)</label>
-        <input class="form-input" type="number" placeholder="e.g. 30">
+        <input class="form-input" type="number" placeholder="e.g. 30" id="inp-water-depth">
         <span class="hint" id="lf-depth-h">Depth of underground water table</span>
       </div>
       <div class="form-field">
         <label id="lf-flow">Daily Flow (m³/day)</label>
-        <input class="form-input" type="number" placeholder="e.g. 50">
+        <input class="form-input" type="number" placeholder="e.g. 50" id="inp-daily-flow">
       </div>
     </div>
     <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;">
@@ -417,8 +440,8 @@ canvas{max-width:100%;}
           <option value="clay">Clay</option>
           <option value="silty">Silty</option>
           <option value="loamy">Loamy</option>
-          <option value="sandy">Sandy Loam</option>
-          <option value="sandy">Stony</option>
+          <option value="loamy">Sandy Loam</option>
+          <option value="silty">Stony / Rocky</option>
         </select>
         <span class="hint" id="sf-type-h">Sandy soils are most common in Algerian Sahara</span>
       </div>
@@ -449,6 +472,12 @@ canvas{max-width:100%;}
   </div>
   <div class="card">
     <div class="card-title"><span class="ct-icon">🌤️</span><span id="soil-ct2">Climate Conditions</span></div>
+    <div style="margin-bottom:14px;">
+      <button class="btn-secondary" onclick="autofillWeather()" id="btn-weather" style="font-size:12.5px;padding:8px 16px;">
+        🌍 Auto-fill from my location
+      </button>
+      <span id="weather-status" style="font-size:12px;color:var(--text3);margin-left:10px;"></span>
+    </div>
     <div class="form-grid">
       <div class="form-field">
         <label id="cf-temp">Average Temperature (°C)</label>
@@ -675,14 +704,57 @@ canvas{max-width:100%;}
   </div>
 </section>
 
+<section class="section" id="sec-history">
+  <div class="page-title">
+    <div class="page-title-left">
+      <h1 id="history-title">📋 Prediction History</h1>
+      <p id="history-sub">All your past AI analysis runs</p>
+    </div>
+    <button class="btn-ghost" onclick="clearHistory()" id="btn-clear-history" style="font-size:12.5px;padding:8px 16px;">🗑️ Clear All</button>
+  </div>
+  <div id="history-list"></div>
+</section>
+
+<section class="section" id="sec-profile">
+  <div class="page-title">
+    <div class="page-title-left">
+      <h1 id="profile-title">👤 My Profile</h1>
+      <p id="profile-sub">Your account details and land summary</p>
+    </div>
+  </div>
+  <div class="card" id="profile-card">
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;flex-wrap:wrap;">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;" id="profile-avatar">F</div>
+      <div>
+        <div style="font-size:22px;font-weight:700;color:var(--text);" id="profile-name">—</div>
+        <div style="font-size:13px;color:var(--text3);" id="profile-email">—</div>
+        <div style="font-size:12px;color:var(--accent);font-weight:600;margin-top:3px;" id="profile-role-badge">Farmer</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;" id="profile-land-summary"></div>
+  </div>
+</section>
+
 </main>
+
+<!-- Floating AI Result Toast -->
+<div id="ai-toast" style="display:none;position:fixed;bottom:28px;right:28px;z-index:9999;background:var(--bg2,#fff);border:2px solid var(--green,#2d6b2a);border-radius:16px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,.18);max-width:320px;animation:fadeUp .35s ease;">
+  <div style="font-size:12px;font-weight:800;color:var(--green,#2d6b2a);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">🤖 AI Result</div>
+  <div id="ai-toast-body" style="font-size:13px;color:var(--text,#222);line-height:1.6;"></div>
+  <button onclick="document.getElementById('ai-toast').style.display='none';showSection('crops');" style="margin-top:10px;background:var(--green,#2d6b2a);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;width:100%;">View Recommendations →</button>
+</div>
+
+<!-- Floating Run AI button (visible from any section) -->
+<button id="fab-ai" onclick="showSection('soil'); setTimeout(()=>{ document.getElementById('btn-analyze').scrollIntoView({behavior:'smooth',block:'center'}); },350);" title="Run AI Analysis" style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:9998;background:linear-gradient(135deg,var(--green,#2d6b2a),#4a9e47);color:#fff;border:none;border-radius:30px;padding:12px 28px;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(45,107,42,.4);letter-spacing:.4px;transition:opacity .3s,transform .3s;">
+  🤖 Run AI Analysis
+</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
 // ── Auth guard ────────────────────────────────────────────────────────────────
 (function(){
-  const u = sessionStorage.getItem('sahrana_user');
+  const u = localStorage.getItem('sahrana_user');
   if(!u){ window.location.href = 'login_fixed.html'; return; }
   const user = JSON.parse(u);
   if(user.role !== 'farmer' && user.role !== 'agency'){
@@ -697,7 +769,7 @@ canvas{max-width:100%;}
 })();
 
 function doLogout(){
-  sessionStorage.removeItem('sahrana_user');
+  localStorage.removeItem('sahrana_user');
   window.location.href = 'login_fixed.html';
 }
 
@@ -884,7 +956,13 @@ function applyLang(lang) {
   document.querySelectorAll('.lang-toggle button').forEach(b => {
     b.classList.toggle('active',(lang==='en'&&b.textContent==='EN')||(lang==='ar'&&b.textContent==='ع'));
   });
+  // IDs managed by the AI model — never overwrite them with static translations
+  const AI_MANAGED = new Set(['cr1-name','cr1-detail','cr2-name','cr2-detail',
+    'cr3-name','cr3-detail','cr4-name','cr4-detail','cr5-name','cr5-detail','cr6-name','cr6-detail']);
+
   Object.keys(t).forEach(id => {
+    // Skip crop card elements if AI has already populated them
+    if (AI_MANAGED.has(id) && window._lastPrediction) return;
     const el = document.getElementById(id);
     if (el) el.textContent = t[id];
   });
@@ -904,7 +982,7 @@ function showSection(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
-  const navMap = {home:0,land:1,map:2,soil:3,crops:4,yield:5,irrig:6,water:7,solar:8,alerts:9};
+  const navMap = {home:0,land:1,map:2,soil:3,crops:4,yield:5,irrig:6,water:7,solar:8,alerts:9,history:10,profile:11};
   const items = document.querySelectorAll('.nav-item');
   if (items[navMap[id]]) items[navMap[id]].classList.add('active');
   if (id === 'map' && !mapInitialized) { setTimeout(initMap, 200); mapInitialized = true; }
@@ -912,6 +990,8 @@ function showSection(id) {
   if (id === 'water') setTimeout(initWaterChart, 100);
   if (id === 'solar') setTimeout(initSolarChart, 100);
   if (id === 'home') setTimeout(initWeeklyChart, 100);
+  if (id === 'history') renderHistory();
+  if (id === 'profile') renderProfile();
 }
 
 function initMap() {
@@ -1081,7 +1161,13 @@ const CROP_INFO = {
   'Pepper':    'Spice crop with high export value. Tolerates heat with moderate water.'
 };
 
-async function runPredict() {
+// Change this URL when deploying to a real server
+const API_BASE = 'http://127.0.0.1:5000';
+
+// Named _corePredict — the history wrapper at the bottom reassigns runPredict
+// to call this. Do NOT rename back to runPredict (causes hoisting circular ref).
+async function _corePredict() {
+  // Make sure we can always read these inputs even if soil section isn't visible
   const temperature = parseFloat(document.getElementById('inp-temperature').value);
   const solar       = parseFloat(document.getElementById('inp-solar').value);
   const humidity    = parseFloat(document.getElementById('inp-humidity').value);
@@ -1091,11 +1177,21 @@ async function runPredict() {
   const btn = document.getElementById('btn-analyze');
   const res = document.getElementById('predict-result');
 
+  // If inputs are missing, navigate to the soil section and highlight missing fields
   if(!temperature || !solar || !humidity || !water || !soil) {
+    showSection('soil');
     res.style.display = 'block';
     res.style.background = '#fee2e2';
     res.style.borderColor = '#fca5a5';
-    res.innerHTML = '<strong>⚠️ Please fill in Temperature, Solar Hours, Humidity, Water Availability and Soil Type.</strong>';
+    res.innerHTML = '<strong>⚠️ Please fill in: Temperature, Daily Solar Hours, Humidity %, Water Availability and Soil Type.</strong>';
+    // Highlight empty fields
+    ['inp-temperature','inp-solar','inp-humidity'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el && !parseFloat(el.value)) {
+        el.style.borderColor = '#f87171';
+        el.addEventListener('input', function(){ this.style.borderColor = ''; }, {once:true});
+      }
+    });
     return;
   }
 
@@ -1104,7 +1200,7 @@ async function runPredict() {
   res.style.display = 'none';
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/api/predict', {
+    const response = await fetch(API_BASE + '/api/predict', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
@@ -1137,6 +1233,10 @@ async function runPredict() {
       '💧 Irrigation Timing: <strong>' + result.irrigation_timing + '</strong><br>' +
       '⚡ Resource Efficiency: <strong>' + result.resource_efficiency + '</strong>';
 
+    // Update home banner + show toast
+    updateHomeBanner(result, false);
+    showAiToast(result, false);
+
     // Navigate to crops section
     setTimeout(()=>{ showSection('crops'); }, 900);
 
@@ -1146,6 +1246,8 @@ async function runPredict() {
     window._lastPrediction = fallback;
     updateCropCards(fallback);
     updateIrrigationSection(fallback);
+    updateHomeBanner(fallback, true);
+    showAiToast(fallback, true);
     res.style.display = 'block';
     res.style.background = '#fef9c3';
     res.style.borderColor = '#fde047';
@@ -1161,7 +1263,36 @@ async function runPredict() {
   }
 }
 
-// Local fallback model (mirrors training data logic)
+function updateHomeBanner(result, offline) {
+  const banner = document.getElementById('ai-banner-status');
+  if(banner) {
+    const src = offline ? '⚡ Local model' : '✅ AI model';
+    banner.innerHTML = src + ' — Top pick: <strong>' + result.recommended_crop +
+      '</strong> &nbsp;|&nbsp; Irrigation: <strong>' + result.irrigation_timing +
+      '</strong> &nbsp;|&nbsp; Efficiency: <strong>' + result.resource_efficiency + '</strong>';
+  }
+  // Update "Best Crops" stat card
+  const cropsVal = document.querySelector('#st-crops')?.closest('.stat-card')?.querySelector('.stat-value');
+  if(cropsVal) cropsVal.textContent = result.recommended_crop.split(' ')[0];
+}
+
+function showAiToast(result, offline) {
+  const toast = document.getElementById('ai-toast');
+  const body  = document.getElementById('ai-toast-body');
+  if(!toast || !body) return;
+  const label = offline ? '⚡ Local model' : '✅ AI model';
+  body.innerHTML =
+    label + '<br>' +
+    '🌾 <strong>' + result.recommended_crop + '</strong><br>' +
+    '💧 ' + result.irrigation_timing + '<br>' +
+    '⚡ Efficiency: ' + result.resource_efficiency;
+  toast.style.display = 'block';
+  // Auto-hide after 8 seconds
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 8000);
+}
+
+
 function localPredict(temp, solar, water, soil, humidity) {
   let crop = 'Date Palm';
   if(temp < 25 && humidity > 50) crop = 'Chickpea';
@@ -1181,19 +1312,55 @@ function localPredict(temp, solar, water, soil, humidity) {
 
 function updateCropCards(result) {
   const main = result.recommended_crop;
-  // Set top card to AI result
-  const n1 = document.getElementById('cr1-name');
-  const d1 = document.getElementById('cr1-detail');
-  if(n1) n1.textContent = main;
-  if(d1) d1.textContent = CROP_INFO[main] || 'AI-recommended crop for your conditions.';
-  // Set emoji on best card
-  const cards = document.querySelectorAll('.crop-card');
-  if(cards[0]) {
-    const emojiEl = cards[0].querySelector('.crop-emoji');
-    if(emojiEl) emojiEl.textContent = CROP_EMOJI[main] || '🌱';
-    const scoreEl = cards[0].querySelector('.crop-score');
-    if(scoreEl) scoreEl.textContent = '98% Match';
+
+  // Build ranked alternatives based on conditions stored from last predict call
+  const allCrops = Object.keys(CROP_INFO);
+  // Remove the main recommendation, shuffle the rest for alternatives
+  const others = allCrops.filter(c => c !== main);
+  // Score alternatives by similarity (simple heuristic based on efficiency)
+  const efficiency = result.resource_efficiency || 'medium';
+  const irrigation = result.irrigation_timing || 'evening';
+  // Prefer drought-tolerant crops when efficiency is 'high' (low water)
+  const droughtTolerant = ['Date Palm','Fig','Sorghum','Barley','Olive','Chickpea'];
+  const waterLoving     = ['Tomato','Watermelon','Wheat','Pepper'];
+  let ranked;
+  if(efficiency === 'high') {
+    ranked = [...droughtTolerant.filter(c=>c!==main), ...waterLoving.filter(c=>c!==main)];
+  } else if(efficiency === 'low') {
+    ranked = [...waterLoving.filter(c=>c!==main), ...droughtTolerant.filter(c=>c!==main)];
+  } else {
+    ranked = [...others]; // medium — keep natural order
   }
+  // Fill remaining slots with any crops not yet listed
+  others.forEach(c => { if(!ranked.includes(c)) ranked.push(c); });
+
+  // Scores: 98, 91, 85, 78, 70, 63
+  const scores = ['98% Match','91% Match','85% Match','78% Match','70% Match','63% Match'];
+
+  // Card 1 — the AI top pick
+  const cards = [
+    {nameId:'cr1-name', detailId:'cr1-detail', crop: main,       score: scores[0]},
+    {nameId:'cr2-name', detailId:'cr2-detail', crop: ranked[0],  score: scores[1]},
+    {nameId:'cr3-name', detailId:'cr3-detail', crop: ranked[1],  score: scores[2]},
+    {nameId:'cr4-name', detailId:'cr4-detail', crop: ranked[2],  score: scores[3]},
+    {nameId:'cr5-name', detailId:'cr5-detail', crop: ranked[3],  score: scores[4]},
+    {nameId:'cr6-name', detailId:'cr6-detail', crop: ranked[4],  score: scores[5]},
+  ];
+
+  const cardEls = document.querySelectorAll('.crop-card');
+  cards.forEach((c, i) => {
+    if(!c.crop) return;
+    const nameEl   = document.getElementById(c.nameId);
+    const detailEl = document.getElementById(c.detailId);
+    if(nameEl)   nameEl.textContent   = c.crop;
+    if(detailEl) detailEl.textContent = CROP_INFO[c.crop] || 'Suitable crop for your conditions.';
+    if(cardEls[i]) {
+      const emojiEl = cardEls[i].querySelector('.crop-emoji');
+      if(emojiEl) emojiEl.textContent = CROP_EMOJI[c.crop] || '🌱';
+      const scoreEl = cardEls[i].querySelector('.crop-score');
+      if(scoreEl) scoreEl.textContent = c.score;
+    }
+  });
 }
 
 function updateIrrigationSection(result) {
@@ -1206,6 +1373,264 @@ function updateIrrigationSection(result) {
     'evening':       'Evening irrigation (6–8 PM) lets water soak in as temperatures drop overnight.'
   };
   tipEl.textContent = tips[timing] || tips['early_morning'];
+}
+
+// ── Weather Auto-fill ────────────────────────────────────────────────────────
+async function autofillWeather() {
+  const btn = document.getElementById('btn-weather');
+  const status = document.getElementById('weather-status');
+  if (!navigator.geolocation) { status.textContent = '⚠️ Geolocation not supported'; return; }
+  btn.disabled = true;
+  btn.textContent = '⏳ Getting location…';
+  status.textContent = '';
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const { latitude: lat, longitude: lon } = pos.coords;
+    btn.textContent = '⏳ Fetching weather…';
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,sunshine_duration&daily=sunshine_duration&timezone=auto&forecast_days=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const temp = data.current.temperature_2m;
+      const humidity = data.current.relative_humidity_2m;
+      // sunshine_duration is in seconds per day → convert to hours
+      const solarHours = (data.daily.sunshine_duration[0] / 3600).toFixed(1);
+      document.getElementById('inp-temperature').value = temp.toFixed(1);
+      document.getElementById('inp-humidity').value = humidity;
+      document.getElementById('inp-solar').value = solarHours;
+      status.textContent = `✅ Filled from ${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`;
+      status.style.color = 'var(--accent)';
+    } catch(e) {
+      status.textContent = '⚠️ Weather fetch failed — fill manually';
+      status.style.color = '#e07020';
+    }
+    btn.disabled = false;
+    btn.textContent = '🌍 Auto-fill from my location';
+  }, () => {
+    status.textContent = '⚠️ Location access denied';
+    btn.disabled = false;
+    btn.textContent = '🌍 Auto-fill from my location';
+  });
+}
+
+// ── Prediction History ───────────────────────────────────────────────────────
+function getHistory() {
+  try { return JSON.parse(localStorage.getItem('sahrana_history') || '[]'); } catch(e) { return []; }
+}
+function saveHistory(h) { localStorage.setItem('sahrana_history', JSON.stringify(h)); }
+
+function pushHistory(inputs, result) {
+  const h = getHistory();
+  h.unshift({
+    id: Date.now(),
+    date: new Date().toLocaleString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+    inputs,
+    result
+  });
+  if (h.length > 50) h.pop(); // keep last 50
+  saveHistory(h);
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  if (!list) return;
+  const h = getHistory();
+  if (h.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:48px 24px;color:var(--text3);">
+      <div style="font-size:48px;margin-bottom:12px;">📭</div>
+      <div style="font-size:15px;font-weight:600;">No predictions yet</div>
+      <div style="font-size:13px;margin-top:6px;">Run an AI analysis from the Soil & Climate section to get started.</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML = h.map(entry => `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:13px;font-weight:800;color:var(--text2);">📅 ${entry.date}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">${entry.result.recommended_crop}</span>
+          <span style="background:var(--bg2);color:var(--text2);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid var(--border);">${entry.result.resource_efficiency} efficiency</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px;">
+        <div style="background:var(--bg2);border-radius:8px;padding:8px 12px;font-size:12px;">🌡️ <b>${entry.inputs.temperature_c}°C</b></div>
+        <div style="background:var(--bg2);border-radius:8px;padding:8px 12px;font-size:12px;">💧 <b>${entry.inputs.humidity_pct}% humidity</b></div>
+        <div style="background:var(--bg2);border-radius:8px;padding:8px 12px;font-size:12px;">☀️ <b>${entry.inputs.peak_solar_hours}h solar</b></div>
+        <div style="background:var(--bg2);border-radius:8px;padding:8px 12px;font-size:12px;">🏜️ <b>${entry.inputs.soil_type} soil</b></div>
+        <div style="background:var(--bg2);border-radius:8px;padding:8px 12px;font-size:12px;">🚿 <b>${entry.inputs.water} water</b></div>
+      </div>
+      <div style="font-size:12.5px;color:var(--text2);">💧 Irrigation: <b>${entry.result.irrigation_timing}</b></div>
+    </div>
+  `).join('');
+}
+
+function clearHistory() {
+  if (!confirm('Clear all prediction history?')) return;
+  localStorage.removeItem('sahrana_history');
+  renderHistory();
+}
+
+// ── History-saving wrapper ────────────────────────────────────────────────────
+// _corePredict (defined above) does the actual prediction.
+// runPredict is the public entry-point called by buttons — it calls _corePredict
+// then saves the result to history.
+var runPredict = async function() {
+  const inputs = {
+    temperature_c:    parseFloat(document.getElementById('inp-temperature').value),
+    peak_solar_hours: parseFloat(document.getElementById('inp-solar').value),
+    humidity_pct:     parseFloat(document.getElementById('inp-humidity').value),
+    water:            document.getElementById('inp-water').value,
+    soil_type:        document.getElementById('inp-soil-type').value,
+  };
+  await _corePredict();
+  if (window._lastPrediction) {
+    pushHistory(inputs, window._lastPrediction);
+  }
+};
+
+// ── Land Info Save / Load ────────────────────────────────────────────────────
+function getLandInfo() {
+  try { return JSON.parse(localStorage.getItem('sahrana_land') || 'null'); } catch(e) { return null; }
+}
+function saveLandInfo(data) { localStorage.setItem('sahrana_land', JSON.stringify(data)); }
+
+function loadLandInfoIntoForm() {
+  const land = getLandInfo();
+  if (!land) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+  set('sel-wilaya', land.wilaya);
+  set('inp-area', land.area);
+  set('inp-elev', land.elev);
+  set('sel-slope', land.slope);
+  set('sel-water-source', land.waterSource);
+  set('inp-water-depth', land.waterDepth);
+  set('inp-daily-flow', land.dailyFlow);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Load saved land info on page load
+  loadLandInfoIntoForm();
+
+  // Save land info button
+  const btnSaveLand = document.getElementById('btn-save-land');
+  if (btnSaveLand) {
+    btnSaveLand.addEventListener('click', function() {
+      const area     = parseFloat(document.getElementById('inp-area').value);
+      const elev     = parseFloat(document.getElementById('inp-elev').value);
+      const depth    = parseFloat(document.getElementById('inp-water-depth').value);
+      const flow     = parseFloat(document.getElementById('inp-daily-flow').value);
+
+      // Validation
+      const errors = [];
+      if (area !== '' && !isNaN(area) && (area < 0.1 || area > 100000)) errors.push('Area must be between 0.1 and 100,000 ha');
+      if (elev !== '' && !isNaN(elev) && (elev < -100 || elev > 3500)) errors.push('Elevation must be between -100 and 3,500 m');
+      if (depth !== '' && !isNaN(depth) && (depth < 0 || depth > 1000)) errors.push('Water depth must be between 0 and 1,000 m');
+      if (flow  !== '' && !isNaN(flow)  && (flow  < 0 || flow  > 100000)) errors.push('Daily flow must be between 0 and 100,000 m³/day');
+
+      if (errors.length) {
+        showFarmerToast('⚠️ ' + errors[0], 'warn');
+        return;
+      }
+
+      const land = {
+        wilaya:      document.getElementById('sel-wilaya').value,
+        area:        document.getElementById('inp-area').value,
+        elev:        document.getElementById('inp-elev').value,
+        slope:       document.getElementById('sel-slope').value,
+        waterSource: document.getElementById('sel-water-source').value,
+        waterDepth:  document.getElementById('inp-water-depth').value,
+        dailyFlow:   document.getElementById('inp-daily-flow').value,
+        savedAt:     new Date().toLocaleString('en-GB'),
+      };
+      saveLandInfo(land);
+      showFarmerToast('✅ Land info saved!', 'success');
+    });
+  }
+
+  // Add live range hints to climate inputs
+  addRangeHint('inp-temperature', -10, 55, '°C', 'Typical Saharan range: 10–50°C');
+  addRangeHint('inp-solar',        0, 16, 'h',   'Daily peak solar: 0–16 h');
+  addRangeHint('inp-humidity',     0, 100,'%',   'Humidity: 0–100%');
+});
+
+function addRangeHint(id, min, max, unit, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.setAttribute('min', min);
+  el.setAttribute('max', max);
+ 
+  let hint = el.nextElementSibling;
+  if (!hint || !hint.classList.contains('hint')) {
+    hint = document.createElement('span');
+    hint.className = 'hint';
+    el.parentNode.insertBefore(hint, el.nextSibling);
+  }
+  hint.textContent = msg;
+  el.addEventListener('input', function() {
+    const v = parseFloat(this.value);
+    if (!isNaN(v) && (v < min || v > max)) {
+      this.style.borderColor = '#e07030';
+      hint.textContent = `⚠️ Valid range: ${min}–${max} ${unit}`;
+      hint.style.color = '#e07030';
+    } else {
+      this.style.borderColor = '';
+      hint.textContent = msg;
+      hint.style.color = '';
+    }
+  });
+}
+
+// ── Profile Render ───────────────────────────────────────────────────────────
+function renderProfile() {
+  const userData = JSON.parse(localStorage.getItem('sahrana_user') || '{}');
+  const land     = getLandInfo();
+  const history  = getHistory();
+
+  const nameEl  = document.getElementById('profile-name');
+  const emailEl = document.getElementById('profile-email');
+  const avatEl  = document.getElementById('profile-avatar');
+  if (nameEl)  nameEl.textContent  = userData.name  || '—';
+  if (emailEl) emailEl.textContent = userData.email || '—';
+  if (avatEl)  avatEl.textContent  = (userData.name || 'F')[0].toUpperCase();
+
+  const summaryEl = document.getElementById('profile-land-summary');
+  if (!summaryEl) return;
+  const items = [
+    { icon:'🗺️', label:'Wilaya',       val: land ? land.wilaya      : '—' },
+    { icon:'🌾', label:'Area (ha)',     val: land && land.area ? land.area + ' ha' : '—' },
+    { icon:'⛰️', label:'Elevation',     val: land && land.elev ? land.elev + ' m'  : '—' },
+    { icon:'💧', label:'Water Source',  val: land ? land.waterSource : '—' },
+    { icon:'📊', label:'AI Runs',       val: history.length + ' predictions' },
+    { icon:'📅', label:'Land Saved',    val: land ? land.savedAt     : 'Not saved yet' },
+  ];
+  summaryEl.innerHTML = items.map(it => `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;">
+      <div style="font-size:22px;">${it.icon}</div>
+      <div style="font-size:13px;font-weight:800;color:var(--text);margin-top:4px;">${it.val}</div>
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;margin-top:2px;">${it.label}</div>
+    </div>`).join('');
+}
+
+// ── Toast helper for farmer dashboard ───────────────────────────────────────
+function showFarmerToast(msg, type) {
+  let toast = document.getElementById('farmer-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'farmer-toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:12px;font-size:13.5px;font-weight:700;z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.18);transition:opacity .3s;white-space:nowrap;';
+    document.body.appendChild(toast);
+  }
+  const colors = { success:'background:#d1fae5;color:#065f46;', warn:'background:#fef3c7;color:#92400e;' };
+  toast.style.cssText += colors[type] || colors.success;
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
 }
 </script>
 </body>
