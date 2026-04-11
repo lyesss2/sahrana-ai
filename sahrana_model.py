@@ -17,7 +17,7 @@ import joblib
 
 #1: Load the dataset
 # pandas read our CSV into a DataFrame.
-df = pd.read_csv("sahrana_dataset.csv")
+df = pd.read_csv("training_data.csv")
 print(f"Loaded {len(df)} rows")
 print(df.head(3))
 print()
@@ -136,4 +136,3 @@ print("Test prediction (42C, sandy, low water, 10 solar hours, 15% humidity):")
 print(f"  Recommended crop:    {result['recommended_crop']}")
 print(f"  Irrigation timing:   {result['irrigation_timing']}")
 print(f"  Resource efficiency: {result['resource_efficiency']}")
-
