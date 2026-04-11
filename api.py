@@ -57,11 +57,11 @@ def crops():
 def predict():
     body = request.get_json(force=True) or {}
  
-    temperature_c      = body.get("temperature_c")      or body.get("temperature")
-    peak_solar_hours   = body.get("peak_solar_hours")   or body.get("solar")
-    water_availability = body.get("water_availability") or body.get("water")
-    soil_type          = body.get("soil_type")          or body.get("soil")
-    humidity_pct       = body.get("humidity_pct")       or body.get("humidity")
+    temperature_c      = body.get("temperature_c")      if body.get("temperature_c")      is not None else body.get("temperature")
+    peak_solar_hours   = body.get("peak_solar_hours")   if body.get("peak_solar_hours")   is not None else body.get("solar")
+    water_availability = body.get("water_availability") if body.get("water_availability") is not None else body.get("water")
+    soil_type          = body.get("soil_type")          if body.get("soil_type")          is not None else body.get("soil")
+    humidity_pct       = body.get("humidity_pct")       if body.get("humidity_pct")       is not None else body.get("humidity")
  
     missing = [k for k,v in {
         "temperature_c": temperature_c, "peak_solar_hours": peak_solar_hours,
